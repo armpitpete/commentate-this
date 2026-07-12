@@ -4,9 +4,9 @@ Turn any ordinary sentence into excessively dramatic football commentary — inc
 
 ## Current status
 
-**CT-01 — Audio Proof Foundation / Azure Voice Gate**
+**CT-01 — Audio Proof Foundation / Google Gemini TTS Voice Gate**
 
-The script-generation and audio-proof foundation is working. OpenAI built-in voices failed the accent gate. The ElevenLabs free lane is closed because Voice Library speech, imports and API Voice Design require a paid plan. CT-01 is now testing native British male voices through Azure Speech F0.
+The script-generation and audio-proof foundation is working. OpenAI built-in voices failed the accent gate. The ElevenLabs free lane is closed because Voice Library speech, imports and API Voice Design require a paid plan. Azure Speech remains a fallback. The active gate is now Google Gemini 3.1 Flash TTS Preview because it provides free-tier audio generation and direct prompting for accent, pace, tone and emotion.
 
 ## Product rule
 
@@ -18,7 +18,7 @@ The commentator must never explain the joke or sound amused by it.
 
 - Node.js 20 or later;
 - an OpenAI API key for commentary-script generation and the existing OpenAI proof lane;
-- an Azure Speech resource key and region for the active British voice audition;
+- a Gemini API key from Google AI Studio for the active voice audition;
 - no API keys are needed for tests or dry runs.
 
 ## Check the foundation
@@ -26,16 +26,15 @@ The commentator must never explain the joke or sound amused by it.
 ```bash
 npm run check
 npm run proof:set:dry-run
-npm run voice:azure:dry-run
+npm run voice:google:dry-run
 ```
 
-## Current human gate: Azure native British voices
+## Current human gate: Google Gemini TTS
 
-Create an Azure Speech resource on the Free F0 tier where available. Set its key and region only in the current PowerShell session:
+Create a Gemini API key in Google AI Studio. Set it only in the current PowerShell session:
 
 ```powershell
-$env:AZURE_SPEECH_KEY = "your-resource-key"
-$env:AZURE_SPEECH_REGION = "uksouth"
+$env:GEMINI_API_KEY = "your-key"
 ```
 
 Then run:
@@ -43,17 +42,25 @@ Then run:
 ```powershell
 git pull --ff-only
 npm run check
-npm run voice:azure
+npm run voice:google
 ```
 
-The audition compares:
+The audition compares six male voice traits:
 
-1. `en-GB-RyanNeural`;
-2. `en-GB-OliverNeural`;
-3. `en-GB-ThomasNeural`;
-4. `en-GB-AlfieNeural`.
+1. Fenrir — excitable;
+2. Sadachbia — lively;
+3. Orus — firm;
+4. Puck — upbeat;
+5. Iapetus — clear;
+6. Charon — informative.
 
-Each voice performs a restrained setup, urgent escalation and committed climax. Judge:
+Each voice receives the same explicit British, non-posh, live-football direction and performs:
+
+1. restrained setup;
+2. urgent escalation;
+3. committed climax.
+
+Judge:
 
 - British accent;
 - not-posh character;
@@ -63,7 +70,15 @@ Each voice performs a restrained setup, urgent escalation and committed climax. 
 
 A voice must score at least 3 out of 5 on every measure.
 
-## Closed ElevenLabs free lane
+## Provider findings
+
+### OpenAI
+
+- `cedar` sounded North American and emotionally flat;
+- `fable` was British but too posh;
+- other built-in voices were not acceptably British.
+
+### ElevenLabs free plan
 
 The selected Voice Library candidate `nbk2esDn4RRk4cVDdoiE` returned:
 
@@ -72,6 +87,16 @@ Free users cannot use library voices via the API.
 ```
 
 Do not continue testing ElevenLabs free-plan workarounds. Steve and other promising library voices remain paid-only comparison options.
+
+### Azure
+
+The Azure native British audition remains available as a fallback:
+
+```powershell
+npm run voice:azure
+```
+
+It is not the current gate because Gemini TTS offers a simpler free API-key path and stronger direct performance control.
 
 ## Existing OpenAI proof commands
 
@@ -101,3 +126,4 @@ Any public version must clearly state that the voice is AI-generated and is not 
 - [OpenAI built-in voice audition](docs/VOICE_AUDITION.md)
 - [ElevenLabs voice gate](docs/ELEVENLABS_AUDITION.md)
 - [Azure British voice audition](docs/AZURE_AUDITION.md)
+- [Google Gemini TTS audition](docs/GOOGLE_TTS_AUDITION.md)
