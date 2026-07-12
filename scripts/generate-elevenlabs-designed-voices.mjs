@@ -53,7 +53,7 @@ function buildIndexHtml(previews) {
 </head>
 <body>
   <main>
-    <h1>CT-01 free-plan Voice Design</h1>
+    <h1>CT-01 Voice Design</h1>
     <p class="notice"><strong>Disclosure:</strong> ${escapeHtml(DISCLOSURE)}</p>
     <p>These voices were designed specifically for ordinary, non-posh British football commentary. Choose one candidate only if the accent and basic energy are credible.</p>
     ${cards}
@@ -76,14 +76,15 @@ if (!Number.isInteger(seed) || seed < 0 || seed > 2147483647) {
 if (args["dry-run"]) {
   console.log(JSON.stringify({
     provider: "elevenlabs",
-    stage: "free_voice_design",
+    stage: "api_voice_design",
     endpoint: "/v1/text-to-voice/design",
+    requiresPaidApiPlan: true,
     model,
     seed,
     description: DESCRIPTION,
     previewText: PREVIEW_TEXT,
     outputRoot,
-    nextCommand: "npm run voice:design:audition -- 1"
+    freePlanAlternative: "Create the voice in the ElevenLabs web app, then run npm run voice:account"
   }, null, 2));
   process.exit(0);
 }
@@ -91,16 +92,29 @@ if (args["dry-run"]) {
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error("ELEVENLABS_API_KEY is required. Set it only in the local shell.");
 
-const result = await designElevenLabsVoicePreviews({
-  apiKey,
-  voiceDescription: DESCRIPTION,
-  text: PREVIEW_TEXT,
-  model,
-  seed,
-  loudness: 0.85,
-  guidanceScale: 4,
-  quality: 0.85
-});
+let result;
+try {
+  result = await designElevenLabsVoicePreviews({
+    apiKey,
+    voiceDescription: DESCRIPTION,
+    text: PREVIEW_TEXT,
+    model,
+    seed,
+    loudness: 0.85,
+    guidanceScale: 4,
+    quality: 0.85
+  });
+} catch (error) {
+  if (/only available on a paid plan/iu.test(String(error?.message))) {
+    throw new Error([
+      "ElevenLabs permits Voice Design in the web app on the free plan, but API voice creation requires a paid plan.",
+      "Create a designed voice manually in the ElevenLabs web app, save it to the account, then run:",
+      "npm run voice:account",
+      "npm run voice:account:audition -- <candidate-number>"
+    ].join("\n"), { cause: error });
+  }
+  throw error;
+}
 
 await mkdir(outputRoot, { recursive: true });
 const previews = [];
@@ -121,7 +135,7 @@ await writeFile(path.join(outputRoot, "listen.html"), buildIndexHtml(previews));
 await writeFile(path.join(outputRoot, "voice-design.json"), `${JSON.stringify({
   generatedAt: new Date().toISOString(),
   provider: "elevenlabs",
-  stage: "free_voice_design",
+  stage: "api_voice_design",
   model,
   seed,
   voiceDescription: DESCRIPTION,
