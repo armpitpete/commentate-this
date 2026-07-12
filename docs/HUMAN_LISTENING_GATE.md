@@ -12,34 +12,41 @@ Automated tests can verify structure, timing instructions and files. They cannot
 - whether separate voice segments sound like one continuous performance;
 - whether the result is funny after repeated use.
 
-## Closed findings
+## Closed provider findings
 
-The OpenAI built-in voice gate failed. The ElevenLabs free account also blocks several relevant voice-import and API creation routes. The account's visible premade voices were all American-accented.
+### OpenAI built-in voices
 
-## Current Gate A — direct Voice Library audition
+- `cedar` sounded North American and emotionally flat;
+- `fable` was clearly British but too posh;
+- the other built-in candidates were not acceptably British.
 
-Current selected candidate:
+### ElevenLabs free plan
 
-```text
-https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE
+The free lane is closed. Voice Library speech, shared-voice imports and API Voice Design require a paid plan. The selected library voice returned HTTP 402.
+
+### Azure
+
+Azure native British voices remain a fallback audition, but they are not the active gate.
+
+## Current Gate A — Google Gemini TTS voice audition
+
+Create a Gemini API key in Google AI Studio. Set it only in the current shell:
+
+```powershell
+$env:GEMINI_API_KEY = "your-key"
 ```
 
-Run:
+Then run:
 
 ```powershell
 git pull --ff-only
-npm run voice:account:audition -- "https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE"
+npm run check
+npm run voice:google
 ```
 
-The command extracts the voice ID from the URL and generates:
+The audition compares Fenrir, Sadachbia, Orus, Puck, Iapetus and Charon. Each receives explicit ordinary-British, non-posh live-football direction and performs the same setup, escalation and climax.
 
-1. calm setup;
-2. urgent escalation;
-3. shouted climax.
-
-If the API key cannot use the voice, open the link and choose **Add to My Voices** or **Use voice**, then rerun. A paid-only response closes this candidate on the free plan.
-
-Score from 1 to 5:
+Score each candidate from 1 to 5 for:
 
 | Measure | Question |
 |---|---|
@@ -51,10 +58,10 @@ Score from 1 to 5:
 
 A candidate passes only when every measure scores at least 3.
 
-## Later complete-proof gate
+## Current Gate B — complete USB-cable proof
 
-After the short audition passes, integrate the voice into one complete USB-cable proof. Judge continuity, accent stability, tension curve, pause, shout, comedy and restraint before generating the full ten-case proof set.
+After one Google voice passes the short audition, integrate it into one complete USB-cable proof. Judge continuity, accent stability, tension curve, pause, shout, comedy and restraint before generating the full ten-case proof set.
 
 ## Stop rule
 
-Do not start crowd mixing, single-file rendering or the public interface until a provider/voice configuration passes the complete human gate.
+Do not start crowd mixing, single-file rendering or the public interface until a provider and voice pass the complete human gate.
