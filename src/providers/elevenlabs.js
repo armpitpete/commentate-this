@@ -2,6 +2,8 @@ const ACCOUNT_VOICES_URL = "https://api.elevenlabs.io/v2/voices";
 const SHARED_VOICES_URL = "https://api.elevenlabs.io/v1/shared-voices";
 const ADD_SHARED_VOICE_URL = "https://api.elevenlabs.io/v1/voices/add";
 const SPEECH_URL = "https://api.elevenlabs.io/v1/text-to-speech";
+const VOICE_DESIGN_URL = "https://api.elevenlabs.io/v1/text-to-voice/design";
+const VOICE_CREATE_URL = "https://api.elevenlabs.io/v1/text-to-voice";
 
 function requireApiKey(apiKey) {
   if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
@@ -108,6 +110,10 @@ export function scoreBritishCommentatorVoice(voice) {
   return score;
 }
 
+export function isElevenLabsSharedVoiceFree(voice) {
+  return voice?.free_users_allowed === true || voice?.sharing?.free_users_allowed === true;
+}
+
 export function selectBritishCommentatorCandidates(voices, limit = 8) {
   const unique = new Map();
   for (const voice of voices ?? []) {
@@ -197,6 +203,114 @@ export async function addElevenLabsSharedVoice({
   }
   const payload = await response.json();
   return payload?.voice_id ?? voiceId;
+}
+
+export function buildElevenLabsVoiceDesignRequest({
+  voiceDescription,
+  text,
+  model = "eleven_ttv_v3",
+  seed = 1964,
+  loudness = 0.8,
+  guidanceScale = 4,
+  quality = 0.8
+}) {
+  if (typeof voiceDescription !== "string" || voiceDescription.length < 20 || voiceDescription.length > 1000) {
+    throw new TypeError("voiceDescription must contain 20 to 1000 characters");
+  }
+  if (typeof text !== "string" || text.length < 100 || text.length > 1000) {
+    throw new TypeError("text must contain 100 to 1000 characters");
+  }
+  return {
+    url: VOICE_DESIGN_URL,
+    body: {
+      voice_description: voiceDescription,
+      text,
+      model_id: model,
+      auto_generate_text: false,
+      loudness,
+      seed,
+      guidance_scale: guidanceScale,
+      should_enhance: false,
+      quality
+    }
+  };
+}
+
+export async function designElevenLabsVoicePreviews({
+  apiKey,
+  voiceDescription,
+  text,
+  model = "eleven_ttv_v3",
+  seed = 1964,
+  loudness = 0.8,
+  guidanceScale = 4,
+  quality = 0.8,
+  fetchImpl = globalThis.fetch
+}) {
+  requireApiKey(apiKey);
+  const request = buildElevenLabsVoiceDesignRequest({
+    voiceDescription,
+    text,
+    model,
+    seed,
+    loudness,
+    guidanceScale,
+    quality
+  });
+  const response = await fetchImpl(request.url, {
+    method: "POST",
+    headers: {
+      "xi-api-key": apiKey,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(request.body)
+  });
+  if (!response.ok) {
+    throw new Error(`ElevenLabs voice design failed (${response.status}): ${await readError(response)}`);
+  }
+  const payload = await response.json();
+  const previews = Array.isArray(payload?.previews) ? payload.previews : [];
+  if (previews.length === 0) throw new Error("ElevenLabs voice design returned no previews");
+  return { previews, text: payload?.text ?? text };
+}
+
+export async function createElevenLabsDesignedVoice({
+  apiKey,
+  generatedVoiceId,
+  name,
+  description,
+  labels = {
+    accent: "Northern English",
+    gender: "male",
+    use_case: "football commentary"
+  },
+  fetchImpl = globalThis.fetch
+}) {
+  requireApiKey(apiKey);
+  if (!generatedVoiceId) throw new TypeError("generatedVoiceId is required");
+  if (!name) throw new TypeError("name is required");
+  if (typeof description !== "string" || description.length < 20) {
+    throw new TypeError("description must contain at least 20 characters");
+  }
+  const response = await fetchImpl(VOICE_CREATE_URL, {
+    method: "POST",
+    headers: {
+      "xi-api-key": apiKey,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      voice_name: name,
+      voice_description: description,
+      generated_voice_id: generatedVoiceId,
+      labels
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`ElevenLabs create designed voice failed (${response.status}): ${await readError(response)}`);
+  }
+  const payload = await response.json();
+  if (!payload?.voice_id) throw new Error("ElevenLabs created voice response did not include voice_id");
+  return payload;
 }
 
 export function buildElevenLabsAuditionText(segment) {
