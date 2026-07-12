@@ -1,4 +1,6 @@
-const VOICES_URL = "https://api.elevenlabs.io/v2/voices";
+const ACCOUNT_VOICES_URL = "https://api.elevenlabs.io/v2/voices";
+const SHARED_VOICES_URL = "https://api.elevenlabs.io/v1/shared-voices";
+const ADD_SHARED_VOICE_URL = "https://api.elevenlabs.io/v1/voices/add";
 const SPEECH_URL = "https://api.elevenlabs.io/v1/text-to-speech";
 
 function requireApiKey(apiKey) {
@@ -21,7 +23,20 @@ function voiceText(voice) {
   const labels = Object.entries(voice?.labels ?? {})
     .map(([key, value]) => `${key} ${value}`)
     .join(" ");
-  return `${voice?.name ?? ""} ${voice?.description ?? ""} ${labels}`.toLowerCase();
+  const verified = (voice?.verified_languages ?? [])
+    .map((item) => `${item?.language ?? ""} ${item?.accent ?? ""} ${item?.locale ?? ""}`)
+    .join(" ");
+  return [
+    voice?.name,
+    voice?.description,
+    voice?.accent,
+    voice?.descriptive,
+    voice?.use_case,
+    voice?.language,
+    voice?.locale,
+    labels,
+    verified
+  ].filter(Boolean).join(" ").toLowerCase();
 }
 
 const POSITIVE_TERMS = new Map([
@@ -64,6 +79,7 @@ const BRITISH_MARKERS = [
   "british",
   "english",
   "england",
+  "en-gb",
   "uk",
   "northern",
   "yorkshire",
@@ -113,7 +129,7 @@ export async function searchElevenLabsVoices({
   fetchImpl = globalThis.fetch
 }) {
   requireApiKey(apiKey);
-  const url = new URL(VOICES_URL);
+  const url = new URL(ACCOUNT_VOICES_URL);
   url.searchParams.set("page_size", String(Math.min(Math.max(pageSize, 1), 100)));
   url.searchParams.set("include_total_count", "false");
   if (search) url.searchParams.set("search", search);
@@ -122,10 +138,65 @@ export async function searchElevenLabsVoices({
     headers: { "xi-api-key": apiKey }
   });
   if (!response.ok) {
-    throw new Error(`ElevenLabs voice search failed (${response.status}): ${await readError(response)}`);
+    throw new Error(`ElevenLabs account voice search failed (${response.status}): ${await readError(response)}`);
   }
   const payload = await response.json();
   return Array.isArray(payload?.voices) ? payload.voices : [];
+}
+
+export async function searchElevenLabsSharedVoices({
+  apiKey,
+  search,
+  accent,
+  language = "en",
+  pageSize = 100,
+  page = 0,
+  fetchImpl = globalThis.fetch
+}) {
+  requireApiKey(apiKey);
+  const url = new URL(SHARED_VOICES_URL);
+  url.searchParams.set("page_size", String(Math.min(Math.max(pageSize, 1), 100)));
+  url.searchParams.set("page", String(Math.max(page, 0)));
+  if (search) url.searchParams.set("search", search);
+  if (accent) url.searchParams.set("accent", accent);
+  if (language) url.searchParams.set("language", language);
+
+  const response = await fetchImpl(url, {
+    headers: { "xi-api-key": apiKey }
+  });
+  if (!response.ok) {
+    throw new Error(`ElevenLabs shared voice search failed (${response.status}): ${await readError(response)}`);
+  }
+  const payload = await response.json();
+  return Array.isArray(payload?.voices) ? payload.voices : [];
+}
+
+export async function addElevenLabsSharedVoice({
+  apiKey,
+  publicOwnerId,
+  voiceId,
+  newName,
+  fetchImpl = globalThis.fetch
+}) {
+  requireApiKey(apiKey);
+  if (!publicOwnerId) throw new TypeError("publicOwnerId is required");
+  if (!voiceId) throw new TypeError("voiceId is required");
+  if (!newName) throw new TypeError("newName is required");
+
+  const url = `${ADD_SHARED_VOICE_URL}/${encodeURIComponent(publicOwnerId)}/${encodeURIComponent(voiceId)}`;
+  const response = await fetchImpl(url, {
+    method: "POST",
+    headers: {
+      "xi-api-key": apiKey,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ new_name: newName, bookmarked: true })
+  });
+  if (!response.ok) {
+    throw new Error(`ElevenLabs add shared voice failed (${response.status}): ${await readError(response)}`);
+  }
+  const payload = await response.json();
+  return payload?.voice_id ?? voiceId;
 }
 
 export function buildElevenLabsAuditionText(segment) {
