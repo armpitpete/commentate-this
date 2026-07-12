@@ -22,6 +22,10 @@
     "voice:elevenlabs:dry-run": "node scripts/generate-elevenlabs-audition.mjs --dry-run",
     "voice:elevenlabs:audition": "node scripts/generate-elevenlabs-selected-audition.mjs",
     "voice:elevenlabs:audition:dry-run": "node scripts/generate-elevenlabs-selected-audition.mjs --dry-run",
+    "voice:design": "node scripts/generate-elevenlabs-designed-voices.mjs",
+    "voice:design:dry-run": "node scripts/generate-elevenlabs-designed-voices.mjs --dry-run",
+    "voice:design:audition": "node scripts/generate-elevenlabs-designed-audition.mjs",
+    "voice:design:audition:dry-run": "node scripts/generate-elevenlabs-designed-audition.mjs --dry-run",
     "check": "npm run schema:check && npm test"
   }
 }
