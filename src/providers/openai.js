@@ -183,33 +183,61 @@ export async function createOpenAICommentaryScript({
   );
 }
 
+const ROLE_NOTES = {
+  set_up: "Begin composed and observant. Keep the opening restrained so later escalation has somewhere to go.",
+  build: "Let interest become clearly audible. Quicken slightly and lift the pitch without shouting.",
+  obstacle: "React to the obstruction with genuine concern. Put a sharper attack on the important words.",
+  escalation: "Drive the action forward urgently. Shorten the gaps, raise the pitch and let pressure enter the breathing.",
+  pause: "Deliver this as a tense holding line. Do not fill or rush the silence that follows.",
+  climax: "Explode as though a dramatic last-minute winner has just been scored. Start sharply, raise pitch and volume, sustain the decisive words and allow genuine astonishment. This must be unmistakably emotional, not merely louder.",
+  aftermath: "Recover audibly from the climax. Sound breathless and amazed rather than returning instantly to neutral.",
+  analysis: "Drop into a dry, measured British co-commentary voice with restrained disbelief and tactical seriousness."
+};
+
+const INTENSITY_NOTES = {
+  0: "Emotional intensity 0 of 5: almost neutral, but still live and attentive.",
+  1: "Emotional intensity 1 of 5: controlled professional interest.",
+  2: "Emotional intensity 2 of 5: clear concern or anticipation is emerging.",
+  3: "Emotional intensity 3 of 5: obvious urgency and rising tension.",
+  4: "Emotional intensity 4 of 5: severe danger; sound breathless and close to losing composure.",
+  5: "Emotional intensity 5 of 5: full emotional release at the decisive moment."
+};
+
 export function buildSpeechInstructions(segment) {
   const delivery = segment.delivery;
-  const speaker = segment.speaker === "analyst" ? "co-commentator analyst" : "live football commentator";
+  const speaker = segment.speaker === "analyst"
+    ? "football co-commentator and analyst"
+    : "live football commentator";
   const paceNotes = {
-    calm: "Use controlled, spacious broadcast pacing.",
-    measured: "Use steady professional broadcast pacing.",
-    building: "Increase pace and tension through the line.",
-    fast: "Speak quickly and urgently while remaining clear.",
-    breathless: "Sound breathless and under severe match pressure, but keep every word intelligible.",
-    shout: "Deliver one committed, sustained goal-style shout without distortion or laughter."
+    calm: "Use controlled, spacious live-broadcast pacing.",
+    measured: "Use steady professional football-broadcast pacing.",
+    building: "Increase pace and tension through the line; do not remain flat.",
+    fast: "Speak quickly and urgently while keeping every word clear.",
+    breathless: "Sound genuinely breathless under severe match pressure, with audible urgency and rising pitch.",
+    shout: "Deliver one committed, sustained goal-style shout with a sharp attack, rising pitch and genuine emotional release. Keep it intelligible and free from distortion."
   };
   const volumeNotes = {
-    quiet: "Keep the voice restrained.",
-    normal: "Use normal broadcast volume.",
-    loud: "Project strongly.",
-    full: "Use full emotional volume, avoiding digital clipping."
+    quiet: "Keep the voice restrained but alive.",
+    normal: "Use normal live-broadcast volume with expressive intonation.",
+    loud: "Project strongly and let excitement become unmistakable.",
+    full: "Use full emotional volume while avoiding digital clipping."
   };
 
   return [
-    `Perform as a British ${speaker}.`,
+    `Perform as a ${speaker}.`,
+    "Use native British English in a neutral UK football-broadcast accent.",
+    "Do not use a North American accent, rhotic post-vocalic R, American sports-announcer cadence or American football terminology.",
+    "Sound like live British radio or television football commentary, not an audiobook, advert, documentary voice-over or synthetic assistant.",
     "Treat the event as genuinely important. Never sound amused and never wink at the joke.",
+    "Do not read neutrally. Make the emotional contrast between calm, pressure and release unmistakable.",
+    INTENSITY_NOTES[delivery.intensity] ?? "Follow the requested emotional intensity precisely.",
+    ROLE_NOTES[segment.role] ?? "Match the emotional performance to the segment's dramatic role.",
     paceNotes[delivery.pace],
     volumeNotes[delivery.volume],
     `Emotional direction: ${delivery.emotion.replaceAll("_", " ")}.`,
     segment.role === "climax"
-      ? "This is the single decisive climax. Commit fully to it."
-      : "Do not turn this line into the main climax."
+      ? "This is the single decisive climax. Commit fully and allow a brief, authentic loss of composure."
+      : "Do not turn this line into the main climax. Preserve contrast for the decisive moment."
   ].join(" ");
 }
 
