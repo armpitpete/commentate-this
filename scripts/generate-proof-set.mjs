@@ -9,6 +9,8 @@ import { buildProofSetIndex } from "../src/proof/build-listening-player.js";
 const DISCLOSURE = "AI-generated voice; not a human commentator.";
 const SCORE_COLUMNS = [
   "football_authenticity",
+  "british_accent",
+  "emotional_range",
   "tension_curve",
   "pause",
   "shout",
@@ -52,8 +54,8 @@ const mode = args.mode ?? "excessive";
 const duration = Number(args.duration ?? 30);
 const model = args.model ?? "gpt-5.6";
 const ttsModel = args["tts-model"] ?? "gpt-4o-mini-tts";
-const commentatorVoice = args["commentator-voice"] ?? "cedar";
-const analystVoice = args["analyst-voice"] ?? "marin";
+const commentatorVoice = args["commentator-voice"] ?? "fable";
+const analystVoice = args["analyst-voice"] ?? "cedar";
 
 if (!Number.isInteger(duration) || duration < 15 || duration > 60) {
   console.error("--duration must be an integer from 15 to 60");
@@ -78,6 +80,8 @@ if (args["dry-run"]) {
         duration,
         models: { script: model, speech: ttsModel },
         voices: { commentator: commentatorVoice, analyst: analystVoice },
+        accentContract: "native British English; neutral UK football-broadcast accent",
+        emotionalContrastRequired: true,
         commands: cases.map((item) => ({
           id: item.id,
           argv: [process.execPath, ...buildChildArgs({
@@ -156,6 +160,7 @@ const setManifest = {
   targetDurationSeconds: duration,
   models: { script: model, speech: ttsModel },
   voices: { commentator: commentatorVoice, analyst: analystVoice },
+  accentContract: "native British English; neutral UK football-broadcast accent",
   cases: cases.map(({ outputDir: _outputDir, ...item }) => ({
     ...item,
     folder: item.id,
@@ -176,4 +181,4 @@ await writeFile(
 
 console.log(`\nProof set complete: ${outputRoot}`);
 console.log(`Open: ${path.join(outputRoot, "listen.html")}`);
-console.log("Record the human scores in listening-results.csv before any crowd or interface work begins.");
+console.log("Record British accent and emotional range as explicit human scores before any crowd or interface work begins.");
