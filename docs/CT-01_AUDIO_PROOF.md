@@ -2,35 +2,28 @@
 
 ## Goal
 
-Prove that an ordinary sentence can become a sincerely performed British football commentary with a controlled setup, rising tension, a real pause and one committed shouted climax.
+Prove that one ordinary sentence can become a short, funny and recognisably football-like audio performance with controlled tension and a decisive shout.
 
-## Current finding
-
-The first live `cedar` proof failed the human gate because it sounded North American and emotionally flat. That result is now treated as useful evidence, not an approved baseline.
-
-## Included in CT-01
+## Included
 
 - ten fixed reference sentences;
 - five dramatic modes;
 - strict structured commentary schema;
-- semantic validation and repair;
+- semantic validation of tension shape;
 - duration estimation;
-- provider-neutral script rules;
-- explicit native-British speech contract;
-- role-specific emotional performance instructions;
-- OpenAI Responses API script generation;
+- provider-neutral prompt rules;
+- OpenAI Responses API request builder;
 - OpenAI Speech API segment generation;
-- built-in voice audition across several candidates;
-- one complete proof before batch generation;
-- timed local listening players;
-- accent and emotional-range scoring;
+- ElevenLabs voice search and Eleven v3 audition generation;
+- deterministic ranking that rewards regional British sports voices and penalises posh/RP descriptions;
+- separate audio segment packages with manifests;
 - automated tests and dry-run commands.
 
 ## Excluded
 
 - crowd-effect assets;
 - FFmpeg mixing;
-- browser interface;
+- browser product interface;
 - user accounts;
 - sharing and downloads;
 - live microphone input;
@@ -44,26 +37,29 @@ CT-01 foundation passes when:
 
 - `npm run check` passes;
 - the schema and runtime validator agree;
-- the voice-audition plan passes its dry run;
 - all ten reference cases can produce a valid request payload;
-- a live run can save a validated script, one WAV per segment, a manifest and a timed player;
+- OpenAI and ElevenLabs audition plans pass dry-run validation;
+- live runs can save audio and manifests;
 - no credentials are stored in the repository.
 
-## Required human order
+## Voice finding
 
-1. Run `npm run voice:audition`.
-2. Score British accent, emotional range, football authenticity and climax.
-3. Select one passing commentator voice.
-4. Generate one complete USB-cable proof with that voice.
-5. Only then generate the ten-case proof set.
-6. Record Pass, Conditional pass or Fail in issue #2.
+The OpenAI built-in voice lane has failed: `fable` was British but too posh, while the other built-in candidates were not acceptably British.
+
+The active gate is now:
+
+```powershell
+npm run voice:elevenlabs
+```
+
+A voice must be British, non-posh, emotionally responsive and recognisably suitable for live football commentary.
+
+## Human gate
+
+The technical foundation cannot determine whether the performance is actually funny or sounds like a football broadcast. Human listening is mandatory before crowd mixing or interface work.
+
+See `HUMAN_LISTENING_GATE.md` and `ELEVENLABS_AUDITION.md`.
 
 ## Stop rule
 
-Do not build crowd mixing, single-file rendering or the public interface until:
-
-- a built-in or alternative voice passes the British-accent gate;
-- the setup-to-climax emotional contrast is obvious;
-- the full ten-case listening threshold passes.
-
-If no built-in voice passes, test another speech provider. Do not lower the British-accent requirement to preserve the current implementation.
+Do not build the public site until at least one provider/voice configuration passes the complete listening gate. A poor voice cannot be repaired by adding more interface.
