@@ -43,15 +43,25 @@ jobs:
           node scripts/generate-elevenlabs-selected-audition.mjs --dry-run > /tmp/commentate-this-elevenlabs-selected.json
           node -e 'const proof = require("/tmp/commentate-this-elevenlabs-selected.json"); if (proof.stage !== "selected_expressive_audition" || proof.callsPerCandidate !== 3 || proof.mutatesVoiceCollection !== true || proof.detectsPaidOnlyVoices !== true) process.exit(1)'
 
-      - name: Verify free voice-design plan
+      - name: Verify paid API voice-design plan
         run: |
           node scripts/generate-elevenlabs-designed-voices.mjs --dry-run > /tmp/commentate-this-elevenlabs-design.json
-          node -e 'const proof = require("/tmp/commentate-this-elevenlabs-design.json"); if (proof.stage !== "free_voice_design" || proof.endpoint !== "/v1/text-to-voice/design" || proof.nextCommand !== "npm run voice:design:audition -- 1") process.exit(1)'
+          node -e 'const proof = require("/tmp/commentate-this-elevenlabs-design.json"); if (proof.stage !== "api_voice_design" || proof.endpoint !== "/v1/text-to-voice/design" || proof.requiresPaidApiPlan !== true) process.exit(1)'
 
       - name: Verify designed-voice audition plan
         run: |
           node scripts/generate-elevenlabs-designed-audition.mjs --dry-run > /tmp/commentate-this-elevenlabs-design-audition.json
           node -e 'const proof = require("/tmp/commentate-this-elevenlabs-design-audition.json"); if (proof.stage !== "designed_voice_expressive_audition" || proof.callsAfterCreation !== 3 || proof.createsVoice !== true) process.exit(1)'
+
+      - name: Verify free-plan account voice discovery
+        run: |
+          node scripts/list-elevenlabs-account-voices.mjs --dry-run > /tmp/commentate-this-account-voices.json
+          node -e 'const proof = require("/tmp/commentate-this-account-voices.json"); if (proof.stage !== "account_voice_discovery" || proof.endpoint !== "/v2/voices" || proof.mutatesVoiceCollection !== false) process.exit(1)'
+
+      - name: Verify account voice football audition
+        run: |
+          node scripts/generate-elevenlabs-account-audition.mjs --dry-run > /tmp/commentate-this-account-audition.json
+          node -e 'const proof = require("/tmp/commentate-this-account-audition.json"); if (proof.stage !== "account_voice_expressive_audition" || proof.callsPerCandidate !== 3 || proof.createsVoice !== false) process.exit(1)'
 
       - name: Verify ten-case proof-set plan
         run: |
