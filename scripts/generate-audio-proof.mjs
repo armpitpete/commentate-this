@@ -33,8 +33,8 @@ const mode = args.mode ?? "excessive";
 const targetDurationSeconds = Number(args.duration ?? 30);
 const model = args.model ?? "gpt-5.6";
 const ttsModel = args["tts-model"] ?? "gpt-4o-mini-tts";
-const commentatorVoice = args["commentator-voice"] ?? "cedar";
-const analystVoice = args["analyst-voice"] ?? "marin";
+const commentatorVoice = args["commentator-voice"] ?? "fable";
+const analystVoice = args["analyst-voice"] ?? "cedar";
 const request = buildOpenAICommentaryRequest({ text, mode, targetDurationSeconds, model });
 
 if (args["dry-run"]) {
@@ -44,6 +44,8 @@ if (args["dry-run"]) {
       ttsModel,
       commentatorVoice,
       analystVoice,
+      accentContract: "native British English; neutral UK football-broadcast accent",
+      emotionalContrastRequired: true,
       disclosureRequired: true
     }
   }, null, 2));
@@ -78,6 +80,7 @@ const manifest = {
   title: script.title,
   models: { script: model, speech: ttsModel },
   voices: { commentator: commentatorVoice, analyst: analystVoice },
+  accentContract: "native British English; neutral UK football-broadcast accent",
   estimatedDurationSeconds: validation.estimatedDurationSeconds,
   disclosure: DISCLOSURE,
   segments: []
@@ -119,4 +122,4 @@ await writeFile(
 );
 console.log(`Generated proof package: ${outputDir}`);
 console.log(`Open the complete timed performance: ${path.join(outputDir, "listen.html")}`);
-console.log("Human listening must happen before crowd mixing is built.");
+console.log("Human listening must confirm British accent and emotional range before the ten-case proof set is generated.");
