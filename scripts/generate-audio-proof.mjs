@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "./args.mjs";
 import { getReferenceSentence } from "../src/proof/reference-sentences.js";
+import { buildListeningPlayer } from "../src/proof/build-listening-player.js";
 import {
   buildOpenAICommentaryRequest,
   createOpenAICommentaryScript,
@@ -9,6 +10,8 @@ import {
   buildSpeechInstructions
 } from "../src/providers/openai.js";
 import { validateCommentaryScript } from "../src/domain/validate-commentary-script.js";
+
+const DISCLOSURE = "AI-generated voice; not a human commentator.";
 
 function slugify(value) {
   return value
@@ -49,7 +52,7 @@ if (args["dry-run"]) {
 
 const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) {
-  console.error("OPENAI_API_KEY is required. Do not paste it into source control.");
+  console.error("OPENAI_API_KEY is required. Do not paste it into source control or chat.");
   process.exit(1);
 }
 
@@ -62,17 +65,21 @@ const script = await createOpenAICommentaryScript({
 });
 const validation = validateCommentaryScript(script);
 const outputName = `${reference?.id ?? slugify(text)}-${Date.now()}`;
-const outputDir = path.resolve("proof-output", outputName);
+const outputDir = path.resolve(
+  args["output-dir"] ?? path.join("proof-output", outputName)
+);
 await mkdir(outputDir, { recursive: true });
 await writeFile(path.join(outputDir, "script.json"), `${JSON.stringify(script, null, 2)}\n`);
 
 const manifest = {
   generatedAt: new Date().toISOString(),
   sourceReference: reference?.id ?? null,
+  sourceText: text,
+  title: script.title,
   models: { script: model, speech: ttsModel },
   voices: { commentator: commentatorVoice, analyst: analystVoice },
   estimatedDurationSeconds: validation.estimatedDurationSeconds,
-  disclosure: "AI-generated voice; not a human commentator.",
+  disclosure: DISCLOSURE,
   segments: []
 };
 
@@ -91,6 +98,7 @@ for (const [index, segment] of script.segments.entries()) {
     filename,
     speaker: segment.speaker,
     role: segment.role,
+    text: segment.text,
     voice,
     pauseBeforeMs: segment.delivery.pauseBeforeMs,
     pauseAfterMs: segment.delivery.pauseAfterMs,
@@ -100,5 +108,15 @@ for (const [index, segment] of script.segments.entries()) {
 }
 
 await writeFile(path.join(outputDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+await writeFile(
+  path.join(outputDir, "listen.html"),
+  buildListeningPlayer({
+    title: script.title,
+    sourceText: text,
+    disclosure: DISCLOSURE,
+    segments: manifest.segments
+  })
+);
 console.log(`Generated proof package: ${outputDir}`);
-console.log("The package deliberately contains separate WAV segments. Human listening must happen before crowd mixing is built.");
+console.log(`Open the complete timed performance: ${path.join(outputDir, "listen.html")}`);
+console.log("Human listening must happen before crowd mixing is built.");
