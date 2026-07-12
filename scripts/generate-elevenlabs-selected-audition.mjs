@@ -85,6 +85,7 @@ if (args["dry-run"]) {
     stage: "selected_expressive_audition",
     preferredInvocation: "npm run voice:elevenlabs:audition -- 1,3",
     manifestResolution: "latest proof-output/**/voice-library.json unless explicitly supplied",
+    detectsPaidOnlyVoices: true,
     mutatesVoiceCollection: true,
     model,
     callsPerCandidate: auditionSegments.length
@@ -113,6 +114,9 @@ const candidates = requested.map((number) => {
   const voice = discovery.candidates?.find((item) => item.candidate === number);
   if (!voice) throw new Error(`Candidate ${number} does not exist in ${manifestPath}`);
   if (!voice.public_owner_id) throw new Error(`Candidate ${number} has no public_owner_id and cannot be added from the Voice Library`);
+  if (voice.free_users_allowed === false) {
+    throw new Error(`${voice.name} requires a paid ElevenLabs plan. Do not upgrade for an unproven voice; run \`npm run voice:design\` to generate free-plan commentator candidates instead.`);
+  }
   return voice;
 });
 
@@ -129,12 +133,20 @@ for (const [index, voice] of candidates.entries()) {
   const voiceDir = path.join(outputRoot, folder);
   await mkdir(voiceDir, { recursive: true });
   console.log(`Adding and auditioning ${voice.name}...`);
-  const addedVoiceId = await addElevenLabsSharedVoice({
-    apiKey,
-    publicOwnerId: voice.public_owner_id,
-    voiceId: voice.voice_id,
-    newName: `CT01 ${voice.name}`.slice(0, 100)
-  });
+  let addedVoiceId;
+  try {
+    addedVoiceId = await addElevenLabsSharedVoice({
+      apiKey,
+      publicOwnerId: voice.public_owner_id,
+      voiceId: voice.voice_id,
+      newName: `CT01 ${voice.name}`.slice(0, 100)
+    });
+  } catch (error) {
+    if (/not available for free users/iu.test(String(error?.message))) {
+      throw new Error(`${voice.name} is paid-only on ElevenLabs. Run \`npm run voice:design\` to create purpose-built free-plan commentator candidates, or deliberately upgrade before retrying.`);
+    }
+    throw error;
+  }
 
   for (const [segmentIndex, segment] of auditionSegments.entries()) {
     const filename = `${String(segmentIndex + 1).padStart(2, "0")}-${segment.role}.mp3`;
