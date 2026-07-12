@@ -2,83 +2,54 @@
 
 ## Closed findings
 
-### OpenAI built-in voices
+The OpenAI built-in voices failed:
 
-- `cedar` was North American and emotionally flat;
-- `fable` was British but too posh/Received Pronunciation;
-- no OpenAI built-in voice passed.
+- `fable` was British but too posh;
+- the other built-in voices were not acceptably British.
 
-### Shared Voice Library
+The original ElevenLabs shared-library search produced one promising preview, Steve, but it was paid-only. The free account also blocks Voice Design and voice creation through the API.
 
-- candidates 1–11 were Indian-accented or too quiet;
-- candidate 12, **Steve — Calm, Expressive and Balanced**, was the only promising preview;
-- Steve is unavailable to free users and remains a paid-only fallback.
+The account voice list contained only premade American voices, so none of those should be auditioned for CT-01.
 
-### API Voice Design
+## Current gate — direct Voice Library candidate
 
-ElevenLabs includes Voice Design in the free web app, but both the Voice Design API and API voice creation are restricted to paid plans. The repository must not describe those API calls as a free-plan workflow.
+A human-selected ElevenLabs Voice Library link can now be auditioned directly without candidate numbering.
 
-## Current free-plan workflow
+Current selected voice:
 
-### Stage A — create the voice in the ElevenLabs web app
+```text
+https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE
+```
 
-Use Voice Design in the browser and save a voice with this contract:
+Voice ID:
 
-- British male football commentator;
-- ordinary Northern English or neutral everyday English accent;
-- not posh or Received Pronunciation;
-- grounded at low intensity;
-- urgent during escalation;
-- capable of a full, intelligible final shout;
-- not American sports-announcer cadence;
-- not audiobook narration.
+```text
+nbk2esDn4RRk4cVDdoiE
+```
 
-This is the only manual creation step.
-
-### Stage B — discover saved account voices
+Run:
 
 ```powershell
 git pull --ff-only
-npm run check
-npm run voice:account
+npm run voice:account:audition -- "https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE"
 ```
 
-The command calls the account voice endpoint and creates:
+The command accepts:
 
-```text
-proof-output/
-└── elevenlabs-account-...
-    ├── listen.html
-    ├── account-voices.json
-    └── account-voices.csv
-```
+- an account candidate number;
+- a bare ElevenLabs voice ID;
+- a complete ElevenLabs Voice Library URL.
 
-Open `listen.html` and identify the candidate number of the newly saved voice.
-
-### Stage C — football-test the selected account voice
-
-```powershell
-npm run voice:account:audition -- 1
-```
-
-Replace `1` with the selected candidate number. The command does not create or import a voice. It uses the saved voice ID directly and generates:
+It generates the same three-stage football test:
 
 1. restrained setup;
 2. urgent escalation;
 3. shouted climax.
 
-## Score
+If the API key cannot use the voice, open the Voice Library link and choose **Add to My Voices** or **Use voice**, then rerun the same command. If ElevenLabs reports that the voice is unavailable to free users, record it as paid-only.
 
-Score from 1 to 5 for:
-
-- British accent;
-- not-posh character;
-- emotional range;
-- football authenticity;
-- climax.
-
-A candidate passes only if every measure scores at least 3.
+Score British accent, not-posh character, emotional range, football authenticity and climax. Every measure must score at least 3.
 
 ## Stop rule
 
-Do not subscribe merely to test Steve. Do not begin crowd mixing, single-file rendering or the public interface until an account voice passes the complete human gate.
+Do not generate the ten-case proof set, add crowd mixing or begin the public interface until one voice passes the full human gate.
