@@ -52,10 +52,18 @@ Open `listen.html`. The page plays each public library preview. Reject voices th
 
 ## Stage B — selected expressive audition
 
-Use the exact manifest path printed by Stage A:
+The command automatically finds the newest `voice-library.json` under `proof-output`. Supply only the selected candidate numbers:
 
 ```powershell
-npm run voice:elevenlabs:audition -- --manifest "proof-output\elevenlabs-library-...\voice-library.json" --candidates 1,3
+npm run voice:elevenlabs:audition -- 1,3
+```
+
+Use the candidate numbers you selected in Stage A. One to three candidates are allowed.
+
+An explicit manifest remains possible by calling Node directly:
+
+```powershell
+node scripts/generate-elevenlabs-selected-audition.mjs --manifest "C:\full\path\to\voice-library.json" --candidates "1,3"
 ```
 
 This command:
