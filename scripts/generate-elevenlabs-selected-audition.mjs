@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "./args.mjs";
 import {
@@ -22,6 +22,48 @@ function parseCandidates(raw) {
   return [...new Set(values)];
 }
 
+async function findLatestVoiceLibraryManifest(root = "proof-output") {
+  const matches = [];
+
+  async function walk(directory) {
+    let entries;
+    try {
+      entries = await readdir(directory, { withFileTypes: true });
+    } catch (error) {
+      if (error?.code === "ENOENT") return;
+      throw error;
+    }
+
+    for (const entry of entries) {
+      const fullPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+      } else if (entry.isFile() && entry.name === "voice-library.json") {
+        const metadata = await stat(fullPath);
+        matches.push({ fullPath, modified: metadata.mtimeMs });
+      }
+    }
+  }
+
+  await walk(path.resolve(root));
+  matches.sort((a, b) => b.modified - a.modified);
+  return matches[0]?.fullPath ?? null;
+}
+
+function resolveCliInputs(args) {
+  let manifest = args.manifest ?? process.env.CT01_ELEVENLABS_MANIFEST ?? null;
+  let candidates = args.candidates ?? process.env.CT01_ELEVENLABS_CANDIDATES ?? null;
+
+  if (!manifest && typeof args._?.[0] === "string" && args._[0].toLowerCase().endsWith(".json")) {
+    manifest = args._[0];
+    candidates ??= args._[1] ?? null;
+  } else {
+    candidates ??= args._?.[0] ?? null;
+  }
+
+  return { manifest, candidates };
+}
+
 function buildIndexHtml({ candidates, folders }) {
   const cards = candidates.map((voice, index) => {
     const clips = auditionSegments.map((segment, segmentIndex) => {
@@ -35,12 +77,14 @@ function buildIndexHtml({ candidates, folders }) {
 
 const args = parseArgs(process.argv.slice(2));
 const model = args.model ?? "eleven_v3";
+const cliInputs = resolveCliInputs(args);
 
 if (args["dry-run"]) {
   console.log(JSON.stringify({
     provider: "elevenlabs",
     stage: "selected_expressive_audition",
-    requires: ["--manifest", "--candidates"],
+    preferredInvocation: "npm run voice:elevenlabs:audition -- 1,3",
+    manifestResolution: "latest proof-output/**/voice-library.json unless explicitly supplied",
     mutatesVoiceCollection: true,
     model,
     callsPerCandidate: auditionSegments.length
@@ -48,14 +92,22 @@ if (args["dry-run"]) {
   process.exit(0);
 }
 
-if (!args.manifest) throw new Error("--manifest must point to a generated voice-library.json file");
-const requested = parseCandidates(args.candidates);
-if (requested.length === 0 || requested.length > 3) throw new Error("--candidates must contain one to three candidate numbers, for example 1,3");
+const manifestPath = cliInputs.manifest
+  ? path.resolve(cliInputs.manifest)
+  : await findLatestVoiceLibraryManifest();
+
+if (!manifestPath) {
+  throw new Error("No voice-library.json was found under proof-output. Run `npm run voice:elevenlabs` first, listen to the previews, then rerun this command with candidate numbers.");
+}
+
+const requested = parseCandidates(cliInputs.candidates);
+if (requested.length === 0 || requested.length > 3) {
+  throw new Error("Supply one to three candidate numbers positionally, for example: npm run voice:elevenlabs:audition -- 1,3");
+}
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error("ELEVENLABS_API_KEY is required. Set it only in the local shell.");
 
-const manifestPath = path.resolve(args.manifest);
 const discovery = JSON.parse(await readFile(manifestPath, "utf8"));
 const candidates = requested.map((number) => {
   const voice = discovery.candidates?.find((item) => item.candidate === number);
@@ -68,6 +120,8 @@ const outputRoot = path.resolve(args["output-dir"] ?? path.join("proof-output", 
 await mkdir(outputRoot, { recursive: true });
 const folders = [];
 const generatedVoices = [];
+
+console.log(`Using Voice Library manifest: ${manifestPath}`);
 
 for (const [index, voice] of candidates.entries()) {
   const folder = `${String(index + 1).padStart(2, "0")}-${slug(voice.name)}-${voice.voice_id.slice(0, 8)}`;
