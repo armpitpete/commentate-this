@@ -4,9 +4,9 @@ Turn any ordinary sentence into excessively dramatic football commentary — inc
 
 ## Current status
 
-**CT-01 — Audio Proof Foundation / Provider Voice Gate**
+**CT-01 — Audio Proof Foundation / Azure Voice Gate**
 
-The script-generation and audio-proof foundation is working. OpenAI built-in voices failed the accent gate. ElevenLabs free-plan voice creation and importing are restricted, so CT-01 now supports direct football audition of a human-selected Voice Library link or voice ID.
+The script-generation and audio-proof foundation is working. OpenAI built-in voices failed the accent gate. The ElevenLabs free lane is closed because Voice Library speech, imports and API Voice Design require a paid plan. CT-01 is now testing native British male voices through Azure Speech F0.
 
 ## Product rule
 
@@ -18,7 +18,7 @@ The commentator must never explain the joke or sound amused by it.
 
 - Node.js 20 or later;
 - an OpenAI API key for commentary-script generation and the existing OpenAI proof lane;
-- an ElevenLabs API key for direct voice audition and speech generation;
+- an Azure Speech resource key and region for the active British voice audition;
 - no API keys are needed for tests or dry runs.
 
 ## Check the foundation
@@ -26,33 +26,34 @@ The commentator must never explain the joke or sound amused by it.
 ```bash
 npm run check
 npm run proof:set:dry-run
-npm run voice:account:audition:dry-run
+npm run voice:azure:dry-run
 ```
 
-## Current human gate: direct ElevenLabs Voice Library candidate
+## Current human gate: Azure native British voices
 
-Current selected link:
+Create an Azure Speech resource on the Free F0 tier where available. Set its key and region only in the current PowerShell session:
 
-```text
-https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE
+```powershell
+$env:AZURE_SPEECH_KEY = "your-resource-key"
+$env:AZURE_SPEECH_REGION = "uksouth"
 ```
 
-Run:
+Then run:
 
 ```powershell
 git pull --ff-only
-npm run voice:account:audition -- "https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE"
+npm run check
+npm run voice:azure
 ```
 
-The command also accepts the bare voice ID:
+The audition compares:
 
-```powershell
-npm run voice:account:audition -- nbk2esDn4RRk4cVDdoiE
-```
+1. `en-GB-RyanNeural`;
+2. `en-GB-OliverNeural`;
+3. `en-GB-ThomasNeural`;
+4. `en-GB-AlfieNeural`.
 
-If ElevenLabs refuses access, open the link and choose **Add to My Voices** or **Use voice**, then rerun. If ElevenLabs says the voice is unavailable to free users, record the candidate as paid-only.
-
-Judge:
+Each voice performs a restrained setup, urgent escalation and committed climax. Judge:
 
 - British accent;
 - not-posh character;
@@ -62,15 +63,15 @@ Judge:
 
 A voice must score at least 3 out of 5 on every measure.
 
-## Existing account-list workflow
+## Closed ElevenLabs free lane
 
-The repository can still list voices already available in the account:
+The selected Voice Library candidate `nbk2esDn4RRk4cVDdoiE` returned:
 
-```powershell
-npm run voice:account
+```text
+Free users cannot use library voices via the API.
 ```
 
-The current account list contained only premade American voices, so those should not be used for CT-01.
+Do not continue testing ElevenLabs free-plan workarounds. Steve and other promising library voices remain paid-only comparison options.
 
 ## Existing OpenAI proof commands
 
@@ -99,3 +100,4 @@ Any public version must clearly state that the voice is AI-generated and is not 
 - [Human listening gate](docs/HUMAN_LISTENING_GATE.md)
 - [OpenAI built-in voice audition](docs/VOICE_AUDITION.md)
 - [ElevenLabs voice gate](docs/ELEVENLABS_AUDITION.md)
+- [Azure British voice audition](docs/AZURE_AUDITION.md)
