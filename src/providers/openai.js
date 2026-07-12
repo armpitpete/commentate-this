@@ -36,6 +36,11 @@ function extractOutputText(payload) {
   throw new Error("OpenAI response did not contain output text");
 }
 
+function buildStructuredOutputSchema() {
+  const { $schema: _draft, title: _title, ...apiSchema } = commentaryScriptSchema;
+  return apiSchema;
+}
+
 export function buildOpenAICommentaryRequest({
   text,
   mode = "excessive",
@@ -52,7 +57,7 @@ export function buildOpenAICommentaryRequest({
         type: "json_schema",
         name: "commentary_script",
         strict: true,
-        schema: commentaryScriptSchema
+        schema: buildStructuredOutputSchema()
       }
     }
   };
