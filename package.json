@@ -18,6 +18,8 @@
     "proof:set:dry-run": "node scripts/generate-proof-set.mjs --dry-run",
     "voice:audition": "node scripts/generate-voice-audition.mjs",
     "voice:audition:dry-run": "node scripts/generate-voice-audition.mjs --dry-run",
+    "voice:elevenlabs": "node scripts/generate-elevenlabs-audition.mjs",
+    "voice:elevenlabs:dry-run": "node scripts/generate-elevenlabs-audition.mjs --dry-run",
     "check": "npm run schema:check && npm test"
   }
 }
