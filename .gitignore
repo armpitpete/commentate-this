@@ -1,0 +1,7 @@
+.env
+.env.*
+node_modules/
+proof-output/*
+!proof-output/.gitkeep
+*.log
+.DS_Store

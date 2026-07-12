@@ -1,0 +1,39 @@
+{
+  "name": "commentate-this",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Turn ordinary sentences into excessively dramatic football commentary.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "schema:write": "node scripts/write-schema.mjs",
+    "schema:check": "node scripts/check-schema.mjs",
+    "prompt": "node scripts/print-prompt.mjs",
+    "proof:dry-run": "node scripts/generate-audio-proof.mjs --dry-run --id usb-cable",
+    "proof:generate": "node scripts/generate-audio-proof.mjs",
+    "proof:set": "node scripts/generate-proof-set.mjs",
+    "proof:set:dry-run": "node scripts/generate-proof-set.mjs --dry-run",
+    "voice:audition": "node scripts/generate-voice-audition.mjs",
+    "voice:audition:dry-run": "node scripts/generate-voice-audition.mjs --dry-run",
+    "voice:elevenlabs": "node scripts/generate-elevenlabs-audition.mjs",
+    "voice:elevenlabs:dry-run": "node scripts/generate-elevenlabs-audition.mjs --dry-run",
+    "voice:elevenlabs:audition": "node scripts/generate-elevenlabs-selected-audition.mjs",
+    "voice:elevenlabs:audition:dry-run": "node scripts/generate-elevenlabs-selected-audition.mjs --dry-run",
+    "voice:design": "node scripts/generate-elevenlabs-designed-voices.mjs",
+    "voice:design:dry-run": "node scripts/generate-elevenlabs-designed-voices.mjs --dry-run",
+    "voice:design:audition": "node scripts/generate-elevenlabs-designed-audition.mjs",
+    "voice:design:audition:dry-run": "node scripts/generate-elevenlabs-designed-audition.mjs --dry-run",
+    "voice:account": "node scripts/list-elevenlabs-account-voices.mjs",
+    "voice:account:dry-run": "node scripts/list-elevenlabs-account-voices.mjs --dry-run",
+    "voice:account:audition": "node scripts/generate-elevenlabs-account-audition.mjs",
+    "voice:account:audition:dry-run": "node scripts/generate-elevenlabs-account-audition.mjs --dry-run",
+    "voice:azure": "node scripts/generate-azure-audition.mjs",
+    "voice:azure:dry-run": "node scripts/generate-azure-audition.mjs --dry-run",
+    "voice:google": "node scripts/generate-google-audition.mjs",
+    "voice:google:dry-run": "node scripts/generate-google-audition.mjs --dry-run",
+    "check": "npm run schema:check && npm test"
+  }
+}
