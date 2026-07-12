@@ -30,6 +30,8 @@
     "voice:account:dry-run": "node scripts/list-elevenlabs-account-voices.mjs --dry-run",
     "voice:account:audition": "node scripts/generate-elevenlabs-account-audition.mjs",
     "voice:account:audition:dry-run": "node scripts/generate-elevenlabs-account-audition.mjs --dry-run",
+    "voice:azure": "node scripts/generate-azure-audition.mjs",
+    "voice:azure:dry-run": "node scripts/generate-azure-audition.mjs --dry-run",
     "check": "npm run schema:check && npm test"
   }
 }
