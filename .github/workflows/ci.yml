@@ -63,6 +63,11 @@ jobs:
           node scripts/generate-elevenlabs-account-audition.mjs --dry-run > /tmp/commentate-this-account-audition.json
           node -e 'const proof = require("/tmp/commentate-this-account-audition.json"); if (proof.stage !== "account_voice_expressive_audition" || proof.callsPerCandidate !== 3 || proof.createsVoice !== false || !proof.preferredInvocation.includes("voice-library-url")) process.exit(1)'
 
+      - name: Verify Azure British audition plan
+        run: |
+          node scripts/generate-azure-audition.mjs --dry-run > /tmp/commentate-this-azure-audition.json
+          node -e 'const proof = require("/tmp/commentate-this-azure-audition.json"); if (proof.provider !== "azure" || proof.stage !== "british_voice_audition" || proof.voices.length !== 4 || proof.calls !== 12) process.exit(1)'
+
       - name: Verify ten-case proof-set plan
         run: |
           node scripts/generate-proof-set.mjs --dry-run > /tmp/commentate-this-proof-set.json
