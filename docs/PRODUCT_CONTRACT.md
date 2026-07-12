@@ -1,25 +1,14 @@
 # Commentate This — Product Contract
 
-## Product promise
+## Product sentence
 
-A user supplies any ordinary sentence or subject. The system returns a short audio performance that treats it like a decisive moment in a British football match.
+Enter any ordinary sentence and hear it treated as the decisive moment of a football match.
 
-## Non-negotiable performance rule
+## Core comic mechanism
 
-> The event is ridiculous. The performance is not.
+The event is ridiculous. The performance is not.
 
-The voice must:
-
-- sound like native British English;
-- use recognisable UK football-broadcast rhythm;
-- remain sincere and never acknowledge the joke;
-- begin with restraint;
-- build real pressure;
-- preserve a genuine pause before the decisive moment;
-- deliver one emotionally committed but intelligible shout;
-- recover or analyse afterwards at a lower intensity.
-
-A North American accent, neutral audiobook delivery or synthetic assistant tone fails the product promise even when the words are correct.
+The commentator must remain sincere. The system must not explain the joke, laugh at its own output, or merely replace ordinary verbs with football vocabulary.
 
 ## Required transformation
 
@@ -33,39 +22,47 @@ Every input is converted into a visible sequence:
 6. one decisive shouted climax;
 7. aftermath or calm analysis.
 
-## Input
+## Audio identity
 
-- one sentence, subject or short event description;
-- dramatic mode;
-- target duration;
-- selected commentator voice after audition.
+The finished product is audio-first. Text exists to support generation, captions and inspection.
 
-## Output
+A convincing result requires:
 
-- structured commentary script;
-- controlled speech segments;
-- timing and future crowd cues;
-- timed listening player;
-- clear AI-voice disclosure.
+- clearly British English;
+- an ordinary, regional or neutral football-broadcast voice rather than posh/RP delivery;
+- controlled opening pace;
+- a genuine change in tension;
+- short, speakable live-commentary lines;
+- silence before the decisive moment;
+- one committed but intelligible shout;
+- optional calm analyst judgement after the climax;
+- later crowd sound that follows rather than anticipates the action.
 
-## Product boundaries
+## Voice-provider rule
 
-Commentate This is not:
+No provider or built-in voice is approved by reputation alone. The selected provider/voice combination must pass human listening for:
 
-- a real football-results service;
-- an imitation of a named commentator;
-- a voice-cloning tool;
-- a generic text-to-speech wrapper;
-- a system that makes the user or a protected characteristic the joke.
+- British accent;
+- not-posh character;
+- emotional range;
+- football authenticity;
+- climax quality;
+- continuity across generated segments.
 
-The humour comes from disproportionate sporting seriousness applied to an ordinary event.
+The OpenAI built-in voice lane has failed. The current search lane uses ElevenLabs voice metadata and Eleven v3 audition generation.
 
-## Current release gate
+## Boundaries
 
-No public interface or crowd-mixing work begins until a voice passes:
+Commentate This must not:
 
-1. British accent;
-2. emotional range;
-3. football authenticity;
-4. intelligible climax;
-5. ten-case replay and comedy thresholds.
+- imitate or clone a named real commentator;
+- use constant shouting;
+- make the user or a protected characteristic the target of humiliation;
+- depend on football knowledge to understand the ordinary event;
+- build accounts, feeds, social systems or a large product shell before the audio mechanism passes proof;
+- present an AI voice as a human recording;
+- weaken the British/non-posh voice requirement merely because a provider cannot meet it.
+
+## Current authority
+
+CT-01 proves the commentary and voice mechanism only. A public interface is out of scope until the complete human listening gate passes.
