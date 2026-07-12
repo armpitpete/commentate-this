@@ -107,7 +107,7 @@ if (args["dry-run"]) {
     limit,
     outputRoot,
     mutatesVoiceCollection: false,
-    nextCommand: "npm run voice:elevenlabs:audition -- --manifest <voice-library.json> --candidates 1,2"
+    nextCommand: "npm run voice:elevenlabs:audition -- 1,2"
   }, null, 2));
   process.exit(0);
 }
@@ -169,4 +169,4 @@ await writeFile(path.join(outputRoot, "voice-library.json"), `${JSON.stringify({
 console.log(`\nVoice Library discovery complete: ${outputRoot}`);
 console.log(`Open: ${path.join(outputRoot, "listen.html")}`);
 console.log("After choosing up to three candidates, run:");
-console.log(`npm run voice:elevenlabs:audition -- --manifest "${path.join(outputRoot, "voice-library.json")}" --candidates 1,2`);
+console.log("npm run voice:elevenlabs:audition -- 1,2");
