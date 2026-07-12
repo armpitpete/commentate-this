@@ -6,7 +6,7 @@ Turn any ordinary sentence into excessively dramatic football commentary — inc
 
 **CT-01 — Audio Proof Foundation / Provider Voice Gate**
 
-The script-generation and audio-proof foundation is working. The OpenAI built-in voice audition has failed: `fable` was British but too posh, while the other built-in voices were not acceptably British. CT-01 is now testing regional British voices through ElevenLabs before any crowd mixing or public interface work.
+The script-generation and audio-proof foundation is working. The OpenAI built-in voice audition has failed: `fable` was British but too posh, while the other built-in voices were not acceptably British. CT-01 is now testing regional British voices through the ElevenLabs shared Voice Library before any crowd mixing or public interface work.
 
 ## Product rule
 
@@ -27,11 +27,14 @@ The commentator must never explain the joke or sound amused by it.
 npm run check
 npm run proof:set:dry-run
 npm run voice:elevenlabs:dry-run
+npm run voice:elevenlabs:audition:dry-run
 ```
 
-## Current human gate: ElevenLabs regional British audition
+## Current human gate: ElevenLabs Voice Library
 
-Create an ElevenLabs API key, set it only in the local shell, then run:
+The process now has two bounded stages.
+
+### Stage A — discover accents without changing the account
 
 ```powershell
 $env:ELEVENLABS_API_KEY = "your-local-key"
@@ -40,17 +43,33 @@ npm run check
 npm run voice:elevenlabs
 ```
 
-Open the generated `proof-output/elevenlabs-audition-.../listen.html` and complete `voice-audition-results.csv`.
+Open the generated:
 
-Reject voices that are:
+```text
+proof-output/elevenlabs-library-.../listen.html
+```
 
-- American or ambiguously non-British;
-- posh, aristocratic or Received Pronunciation;
-- emotionally flat;
-- audiobook-like rather than live football commentary;
-- unable to produce an intelligible shouted climax.
+The page plays the public Voice Library previews. Reject American, posh/RP, audiobook and otherwise unsuitable voices. Choose no more than three candidate numbers.
 
-A voice must score at least 3 out of 5 for British accent, not-posh character, emotional range, football authenticity and climax.
+### Stage B — generate the expressive football audition
+
+Use the exact `voice-library.json` path printed by Stage A:
+
+```powershell
+npm run voice:elevenlabs:audition -- --manifest "proof-output\elevenlabs-library-...\voice-library.json" --candidates 1,3
+```
+
+This stage adds only the selected shared voices to the ElevenLabs account, then generates the same calm setup, urgent escalation and shouted climax for each.
+
+Open the generated `listen.html` and complete `voice-audition-results.csv`.
+
+A voice must score at least 3 out of 5 for:
+
+- British accent;
+- not-posh character;
+- emotional range;
+- football authenticity;
+- climax.
 
 ## Existing OpenAI proof commands
 
