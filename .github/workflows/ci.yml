@@ -33,10 +33,15 @@ jobs:
           node scripts/generate-voice-audition.mjs --dry-run > /tmp/commentate-this-voice-audition.json
           node -e 'const proof = require("/tmp/commentate-this-voice-audition.json"); if (proof.voices.length < 3 || proof.calls !== proof.voices.length * 3) process.exit(1)'
 
-      - name: Verify ElevenLabs regional audition plan
+      - name: Verify ElevenLabs Voice Library discovery plan
         run: |
-          node scripts/generate-elevenlabs-audition.mjs --dry-run > /tmp/commentate-this-elevenlabs-audition.json
-          node -e 'const proof = require("/tmp/commentate-this-elevenlabs-audition.json"); if (proof.provider !== "elevenlabs" || proof.limit < 1 || proof.callsAfterSearch !== proof.limit * 3) process.exit(1)'
+          node scripts/generate-elevenlabs-audition.mjs --dry-run > /tmp/commentate-this-elevenlabs-library.json
+          node -e 'const proof = require("/tmp/commentate-this-elevenlabs-library.json"); if (proof.endpoint !== "/v1/shared-voices" || proof.stage !== "shared_voice_library_discovery" || proof.mutatesVoiceCollection !== false) process.exit(1)'
+
+      - name: Verify ElevenLabs selected audition plan
+        run: |
+          node scripts/generate-elevenlabs-selected-audition.mjs --dry-run > /tmp/commentate-this-elevenlabs-selected.json
+          node -e 'const proof = require("/tmp/commentate-this-elevenlabs-selected.json"); if (proof.stage !== "selected_expressive_audition" || proof.callsPerCandidate !== 3 || proof.mutatesVoiceCollection !== true) process.exit(1)'
 
       - name: Verify ten-case proof-set plan
         run: |
