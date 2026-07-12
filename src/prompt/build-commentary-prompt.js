@@ -15,6 +15,7 @@ export function buildCommentaryInstructions() {
     "Translate the source event into clear physical play: objective, movement, obstacle, rising pressure, decisive moment, aftermath.",
     "Use authentic live-commentary rhythm, not a paragraph stuffed with football clichés.",
     "Tension must change over time. Start controlled, accelerate, insert a real pause immediately before the climax, then deliver one intelligible full-volume shout.",
+    "The one climax segment must use speaker commentator, intensity 5, pace shout, volume full, and pauseBeforeMs of at least 500.",
     "The climax must be earned by the preceding action. Constant shouting is forbidden.",
     "An analyst may speak only after the climax and should give calm, absurdly serious tactical judgement.",
     "Do not imitate, name, quote, or describe any real commentator.",
@@ -39,7 +40,30 @@ export function buildCommentaryInput({ text, mode = "excessive", targetDurationS
     `MODE: ${mode}`,
     `TARGET DURATION: ${targetDurationSeconds} seconds`,
     `MODE DIRECTION: ${MODE_NOTES[mode]}`,
-    "Required dramatic shape: controlled setup -> visible obstacle -> rising pace -> silence -> one shouted climax -> brief aftermath or analyst judgement.",
+    "Required dramatic shape: controlled setup -> visible obstacle -> rising pace -> at least 500ms silence -> one shouted climax -> brief aftermath or analyst judgement.",
     "Use between 4 and 10 compact segments. Keep every line speakable aloud."
+  ].join("\n");
+}
+
+export function buildCommentaryRepairInput({
+  text,
+  mode = "excessive",
+  targetDurationSeconds = 30,
+  previousScript,
+  validationErrors
+}) {
+  const errors = Array.isArray(validationErrors)
+    ? validationErrors.map((error) => `- ${error.path}: ${error.message}`).join("\n")
+    : "- The previous script failed validation.";
+
+  return [
+    buildCommentaryInput({ text, mode, targetDurationSeconds }),
+    "",
+    "The previous JSON response failed the product's semantic validator.",
+    "Correct every error below while preserving the source event and returning the complete JSON object:",
+    errors,
+    "",
+    "PREVIOUS JSON:",
+    JSON.stringify(previousScript)
   ].join("\n");
 }
