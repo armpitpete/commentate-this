@@ -25,5 +25,10 @@ jobs:
       - name: Run foundation checks
         run: npm run check
 
-      - name: Verify dry-run payload
-        run: npm run proof:dry-run > /tmp/commentate-this-dry-run.json
+      - name: Verify single-proof dry run
+        run: npm run proof:dry-run > /tmp/commentate-this-dry-run.txt
+
+      - name: Verify ten-case proof-set plan
+        run: |
+          node scripts/generate-proof-set.mjs --dry-run > /tmp/commentate-this-proof-set.json
+          node -e 'const proof = require("/tmp/commentate-this-proof-set.json"); if (proof.count !== 10 || proof.commands.length !== 10) process.exit(1)'
