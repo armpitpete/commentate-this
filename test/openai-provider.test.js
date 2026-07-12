@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
   buildOpenAICommentaryRequest,
+  buildSpeechInstructions,
   createOpenAICommentaryScript,
   createOpenAISpeechSegment,
   normalizeGeneratedCommentaryScript
@@ -115,7 +116,21 @@ test("provider retries once with semantic validation feedback", async () => {
   assert.equal(result.title, fixture.title);
 });
 
-test("speech provider sends performance instructions and returns bytes", async () => {
+test("speech instructions explicitly require British accent and emotional contrast", () => {
+  const setup = buildSpeechInstructions(fixture.segments[0]);
+  const climax = buildSpeechInstructions(fixture.segments[3]);
+
+  assert.match(setup, /native British English/u);
+  assert.match(setup, /Do not use a North American accent/u);
+  assert.match(setup, /not an audiobook, advert, documentary voice-over or synthetic assistant/u);
+  assert.match(setup, /Do not read neutrally/u);
+  assert.match(climax, /last-minute winner/u);
+  assert.match(climax, /unmistakably emotional/u);
+  assert.match(climax, /authentic loss of composure/u);
+  assert.notEqual(setup, climax);
+});
+
+test("speech provider sends British performance instructions and returns bytes", async () => {
   let received;
   const fetchImpl = async (_url, options) => {
     received = JSON.parse(options.body);
@@ -124,12 +139,13 @@ test("speech provider sends performance instructions and returns bytes", async (
   const bytes = await createOpenAISpeechSegment({
     apiKey: "test-key",
     segment: fixture.segments[3],
-    voice: "cedar",
+    voice: "fable",
     fetchImpl
   });
   assert.equal(received.model, "gpt-4o-mini-tts");
-  assert.equal(received.voice, "cedar");
+  assert.equal(received.voice, "fable");
   assert.equal(received.response_format, "wav");
+  assert.match(received.instructions, /native British English/u);
   assert.match(received.instructions, /single decisive climax/u);
   assert.deepEqual([...bytes], [82, 73, 70, 70]);
 });
