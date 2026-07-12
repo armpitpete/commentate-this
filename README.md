@@ -49,6 +49,12 @@ Use ElevenLabs Voice Design in the browser. Create an ordinary British male foot
 - no American sports-announcer cadence;
 - no audiobook narration.
 
+Suggested design text:
+
+```text
+A British male football commentator in his forties with an ordinary Northern English accent. Warm, grounded and conversational at low intensity, then fast, urgent and genuinely excited as play develops. Capable of a full committed goal shout without becoming shrill or distorted. Not posh, not Received Pronunciation, not aristocratic, not an audiobook narrator, and not an American sports announcer. Clear consonants, natural British football rhythm, broad emotional range, and believable live-broadcast energy.
+```
+
 Save the chosen voice to the ElevenLabs account.
 
 ### Stage B — list saved account voices
