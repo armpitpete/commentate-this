@@ -1,17 +1,24 @@
 import { commentaryScriptSchema } from "../domain/commentary-schema.js";
-import { assertValidCommentaryScript } from "../domain/validate-commentary-script.js";
+import { validateCommentaryScript } from "../domain/validate-commentary-script.js";
 import {
   buildCommentaryInput,
-  buildCommentaryInstructions
+  buildCommentaryInstructions,
+  buildCommentaryRepairInput
 } from "../prompt/build-commentary-prompt.js";
 
 const RESPONSES_URL = "https://api.openai.com/v1/responses";
 const SPEECH_URL = "https://api.openai.com/v1/audio/speech";
+const MIN_CLIMAX_PAUSE_MS = 500;
+const MAX_SCRIPT_ATTEMPTS = 2;
 
 function requireApiKey(apiKey) {
   if (typeof apiKey !== "string" || apiKey.trim().length === 0) {
     throw new Error("OPENAI_API_KEY is required for live proof generation");
   }
+}
+
+function isObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 async function readError(response) {
@@ -41,17 +48,63 @@ function buildStructuredOutputSchema() {
   return apiSchema;
 }
 
+export function normalizeGeneratedCommentaryScript(
+  script,
+  { text, mode, targetDurationSeconds } = {}
+) {
+  if (!isObject(script)) return script;
+
+  const normalized = structuredClone(script);
+
+  if (typeof text === "string" && text.trim().length > 0) {
+    normalized.sourceText = text.trim();
+  }
+  if (typeof mode === "string") normalized.mode = mode;
+  if (Number.isInteger(targetDurationSeconds)) {
+    normalized.targetDurationSeconds = targetDurationSeconds;
+  }
+
+  const climaxSegments = Array.isArray(normalized.segments)
+    ? normalized.segments.filter((segment) => segment?.role === "climax")
+    : [];
+
+  if (climaxSegments.length === 1 && isObject(climaxSegments[0].delivery)) {
+    const delivery = climaxSegments[0].delivery;
+    delivery.intensity = 5;
+    delivery.pace = "shout";
+    delivery.volume = "full";
+    delivery.pauseBeforeMs = Math.max(
+      MIN_CLIMAX_PAUSE_MS,
+      Number.isInteger(delivery.pauseBeforeMs) ? delivery.pauseBeforeMs : 0
+    );
+  }
+
+  return normalized;
+}
+
 export function buildOpenAICommentaryRequest({
   text,
   mode = "excessive",
   targetDurationSeconds = 30,
-  model = "gpt-5.6"
+  model = "gpt-5.6",
+  previousScript = null,
+  validationErrors = null
 }) {
+  const input = previousScript
+    ? buildCommentaryRepairInput({
+        text,
+        mode,
+        targetDurationSeconds,
+        previousScript,
+        validationErrors
+      })
+    : buildCommentaryInput({ text, mode, targetDurationSeconds });
+
   return {
     model,
     store: false,
     instructions: buildCommentaryInstructions(),
-    input: buildCommentaryInput({ text, mode, targetDurationSeconds }),
+    input,
     text: {
       format: {
         type: "json_schema",
@@ -63,16 +116,7 @@ export function buildOpenAICommentaryRequest({
   };
 }
 
-export async function createOpenAICommentaryScript({
-  apiKey,
-  text,
-  mode = "excessive",
-  targetDurationSeconds = 30,
-  model = "gpt-5.6",
-  fetchImpl = globalThis.fetch
-}) {
-  requireApiKey(apiKey);
-  const body = buildOpenAICommentaryRequest({ text, mode, targetDurationSeconds, model });
+async function requestCommentaryScript({ apiKey, body, fetchImpl }) {
   const response = await fetchImpl(RESPONSES_URL, {
     method: "POST",
     headers: {
@@ -88,13 +132,55 @@ export async function createOpenAICommentaryScript({
 
   const payload = await response.json();
   const textOutput = extractOutputText(payload);
-  let script;
   try {
-    script = JSON.parse(textOutput);
+    return JSON.parse(textOutput);
   } catch (error) {
     throw new Error(`OpenAI returned non-JSON output: ${error.message}`);
   }
-  return assertValidCommentaryScript(script);
+}
+
+export async function createOpenAICommentaryScript({
+  apiKey,
+  text,
+  mode = "excessive",
+  targetDurationSeconds = 30,
+  model = "gpt-5.6",
+  fetchImpl = globalThis.fetch
+}) {
+  requireApiKey(apiKey);
+
+  let previousScript = null;
+  let validationErrors = null;
+
+  for (let attempt = 1; attempt <= MAX_SCRIPT_ATTEMPTS; attempt += 1) {
+    const body = buildOpenAICommentaryRequest({
+      text,
+      mode,
+      targetDurationSeconds,
+      model,
+      previousScript,
+      validationErrors
+    });
+    const generated = await requestCommentaryScript({ apiKey, body, fetchImpl });
+    const normalized = normalizeGeneratedCommentaryScript(generated, {
+      text,
+      mode,
+      targetDurationSeconds
+    });
+    const validation = validateCommentaryScript(normalized);
+
+    if (validation.valid) return normalized;
+
+    previousScript = normalized;
+    validationErrors = validation.errors;
+  }
+
+  const details = validationErrors
+    .map((error) => `${error.path}: ${error.message}`)
+    .join("\n");
+  throw new Error(
+    `Invalid commentary script after ${MAX_SCRIPT_ATTEMPTS} attempts:\n${details}`
+  );
 }
 
 export function buildSpeechInstructions(segment) {
