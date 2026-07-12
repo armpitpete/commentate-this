@@ -1,49 +1,32 @@
-# CT-01 Voice Audition
+# CT-01 OpenAI Built-in Voice Audition
 
-## Purpose
+## Outcome
 
-The first live proof used `cedar` and failed because it sounded North American and emotionally flat. The next step is not another ten-case run. It is a controlled comparison of several built-in voices using identical material.
+**Failed.**
 
-## Run
+The OpenAI built-in voice comparison established:
+
+- `fable` was the only clearly British voice;
+- `fable` sounded too posh/Received Pronunciation for Commentate This;
+- the remaining built-in voices were not acceptably British;
+- no built-in OpenAI voice passed both accent and performance requirements.
+
+This lane is retained as evidence and regression material. It is not the active voice-selection route.
+
+## Why the requirement remains
+
+Commentate This needs a recognisable British football-commentary voice that sounds ordinary or regional, not aristocratic, audiobook-like or North American. Weakening that requirement would remove a core part of the product identity.
+
+## Current route
+
+Proceed to the searchable ElevenLabs regional British audition:
 
 ```powershell
-npm run voice:audition
+npm run voice:elevenlabs
 ```
 
-Default candidates:
-
-- `fable`;
-- `ash`;
-- `onyx`;
-- `cedar`.
-
-A different set can be supplied:
-
-```powershell
-npm run voice:audition -- --voices fable,marin,verse
-```
-
-## Listen
-
-Open the generated top-level `listen.html`. Each candidate performs:
-
-1. restrained setup;
-2. urgent escalation;
-3. shouted climax.
-
-No crowd sound is included.
-
-## Score
-
-Complete `voice-audition-results.csv` with scores from 1 to 5 for:
-
-- British accent;
-- emotional range;
-- football authenticity;
-- climax.
-
-A candidate passes only when every measure scores at least 3. Select one preferred voice before generating another complete proof.
+See `ELEVENLABS_AUDITION.md`.
 
 ## Stop rule
 
-If no built-in voice passes, do not soften the requirement. Test another speech provider or segmentation approach.
+Do not generate a ten-case proof using an OpenAI built-in voice. The built-in voice gate is closed unless OpenAI adds a materially different voice option later.
