@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "./args.mjs";
 import {
+  isElevenLabsSharedVoiceFree,
   searchElevenLabsSharedVoices,
   selectBritishCommentatorCandidates
 } from "../src/providers/elevenlabs.js";
@@ -51,9 +52,13 @@ function buildIndexHtml({ candidates }) {
     const preview = voice.preview_url
       ? `<audio controls preload="none" src="${escapeHtml(voice.preview_url)}"></audio>`
       : "<p>No public preview was supplied for this voice.</p>";
+    const access = isElevenLabsSharedVoiceFree(voice)
+      ? "Free account: available"
+      : "Paid plan required";
     return `<section>
       <h2>${index + 1}. ${escapeHtml(voice.name)}</h2>
       <p><strong>Accent:</strong> ${escapeHtml(voiceAccent(voice) || "not supplied")} · <strong>Category:</strong> ${escapeHtml(voice.category || "not supplied")} · <strong>Score:</strong> ${voice.suitabilityScore}</p>
+      <p><strong>Account access:</strong> ${escapeHtml(access)}</p>
       <p><strong>Use case:</strong> ${escapeHtml(voice.use_case || "not supplied")} · <strong>Style:</strong> ${escapeHtml(voice.descriptive || "not supplied")}</p>
       <p>${escapeHtml(voice.description || "No description supplied.")}</p>
       ${preview}
@@ -79,7 +84,7 @@ function buildIndexHtml({ candidates }) {
   <main>
     <h1>CT-01 ElevenLabs Voice Library discovery</h1>
     <p class="notice"><strong>Disclosure:</strong> ${escapeHtml(DISCLOSURE)}</p>
-    <p>This is the accent-selection stage. Reject posh/RP, American, audiobook and unsuitable voices. Choose at most three candidates for the expressive football audition.</p>
+    <p>This is the accent-selection stage. Reject posh/RP, American, audiobook and unsuitable voices. Check the account-access line before selecting a voice.</p>
     ${cards}
   </main>
 </body>
@@ -106,6 +111,7 @@ if (args["dry-run"]) {
     queries,
     limit,
     outputRoot,
+    showsFreePlanAvailability: true,
     mutatesVoiceCollection: false,
     nextCommand: "npm run voice:elevenlabs:audition -- 1,2"
   }, null, 2));
@@ -141,16 +147,17 @@ const manifestCandidates = candidates.map((voice, index) => ({
   use_case: voice.use_case,
   description: voice.description,
   preview_url: voice.preview_url,
+  free_users_allowed: isElevenLabsSharedVoiceFree(voice),
   suitabilityScore: voice.suitabilityScore
 }));
 
 const header = [
   "candidate", "voice_id", "public_owner_id", "name", "accent", "description",
-  "british_accent", "not_posh", "football_potential", "selected", "notes"
+  "free_users_allowed", "british_accent", "not_posh", "football_potential", "selected", "notes"
 ];
 const rows = manifestCandidates.map((voice) => [
   voice.candidate, voice.voice_id, voice.public_owner_id, voice.name, voice.accent,
-  voice.description, "", "", "", "", ""
+  voice.description, voice.free_users_allowed, "", "", "", "", ""
 ]);
 
 await writeFile(path.join(outputRoot, "voice-library-results.csv"), `${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n")}\n`);
@@ -168,5 +175,5 @@ await writeFile(path.join(outputRoot, "voice-library.json"), `${JSON.stringify({
 
 console.log(`\nVoice Library discovery complete: ${outputRoot}`);
 console.log(`Open: ${path.join(outputRoot, "listen.html")}`);
-console.log("After choosing up to three candidates, run:");
+console.log("After choosing up to three free-account candidates, run:");
 console.log("npm run voice:elevenlabs:audition -- 1,2");
