@@ -14,6 +14,8 @@
     "prompt": "node scripts/print-prompt.mjs",
     "proof:dry-run": "node scripts/generate-audio-proof.mjs --dry-run --id usb-cable",
     "proof:generate": "node scripts/generate-audio-proof.mjs",
+    "proof:set": "node scripts/generate-proof-set.mjs",
+    "proof:set:dry-run": "node scripts/generate-proof-set.mjs --dry-run",
     "check": "npm run schema:check && npm test"
   }
 }
