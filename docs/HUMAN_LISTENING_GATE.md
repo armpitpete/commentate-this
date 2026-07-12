@@ -4,73 +4,57 @@
 
 Automated tests can verify structure, timing instructions and files. They cannot reliably judge:
 
-- whether the voice is recognisably British;
-- whether it sounds ordinary/regional rather than posh or Received Pronunciation;
+- whether the voice sounds genuinely British;
+- whether it avoids an unsuitable posh/Received-Pronunciation character;
 - football-commentary authenticity;
-- emotional range;
-- comic timing;
+- emotional range and comic timing;
 - whether the shout sounds committed rather than synthetic;
-- whether separate voice segments sound like one continuous performance.
+- whether separate voice segments sound like one continuous performance;
+- whether the result is funny after repeated use.
 
-## Provider findings
+## Closed findings
 
-### OpenAI built-in voices
+The OpenAI built-in voice gate failed. The ElevenLabs free account also blocks several relevant voice-import and API creation routes. The account's visible premade voices were all American-accented.
 
-Failed. `fable` was British but too posh; the remaining voices were not acceptably British.
+## Current Gate A — direct Voice Library audition
 
-### ElevenLabs shared voices
+Current selected candidate:
 
-Steve was the only promising preview, but ElevenLabs blocks free accounts from importing it.
-
-### ElevenLabs API Voice Design
-
-Blocked on the free account. The API returns that creating a voice through the API requires a paid plan.
-
-## Current Gate A — create and save a voice in the ElevenLabs web app
-
-Use Voice Design in the browser. The voice must be British, non-posh, grounded at low intensity and capable of genuine escalation and a committed final shout.
-
-After saving the voice to the account, run:
-
-```powershell
-npm run voice:account
+```text
+https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE
 ```
 
-Open the generated `listen.html` and identify the new voice's candidate number.
-
-## Current Gate B — expressive football audition
+Run:
 
 ```powershell
-npm run voice:account:audition -- 1
+git pull --ff-only
+npm run voice:account:audition -- "https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE"
 ```
 
-Replace `1` with the selected account-voice candidate number.
+The command extracts the voice ID from the URL and generates:
 
-Score each measure from 1 to 5:
+1. calm setup;
+2. urgent escalation;
+3. shouted climax.
+
+If the API key cannot use the voice, open the link and choose **Add to My Voices** or **Use voice**, then rerun. A paid-only response closes this candidate on the free plan.
+
+Score from 1 to 5:
 
 | Measure | Question |
 |---|---|
-| British accent | Is the voice clearly British? |
-| Not posh | Does it avoid posh, aristocratic and RP character? |
-| Emotional range | Is the calm-to-pressure-to-climax difference obvious? |
+| British accent | Does it sound naturally British? |
+| Not posh | Does it avoid RP, aristocratic or overly polished delivery? |
+| Emotional range | Is there an obvious calm-to-pressure-to-climax change? |
 | Football authenticity | Does it sound like live football commentary rather than narration? |
-| Climax | Is the shout committed, intelligible and free from distortion? |
+| Climax | Is the final shout forceful, intelligible and free from distortion? |
 
 A candidate passes only when every measure scores at least 3.
 
-## Gate C — one complete proof
+## Later complete-proof gate
 
-After selecting a voice, integrate its provider and voice ID into one complete USB-cable proof. Confirm:
-
-- the accent remains acceptable across a full script;
-- separate segments feel like the same broadcast;
-- the performance remains sincere;
-- the climax is earned rather than merely loud.
-
-## Gate D — ten-case proof
-
-Only after Gate C passes, generate all ten reference cases.
+After the short audition passes, integrate the voice into one complete USB-cable proof. Judge continuity, accent stability, tension curve, pause, shout, comedy and restraint before generating the full ten-case proof set.
 
 ## Stop rule
 
-Do not begin crowd mixing, single-file rendering or public interface work until the ten-case human gate passes.
+Do not start crowd mixing, single-file rendering or the public interface until a provider/voice configuration passes the complete human gate.
