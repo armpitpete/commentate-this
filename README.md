@@ -6,7 +6,13 @@ Turn any ordinary sentence into excessively dramatic football commentary — inc
 
 **CT-01 — Audio Proof Foundation / Provider Voice Gate**
 
-The script-generation and audio-proof foundation is working. The OpenAI built-in voice audition has failed: `fable` was British but too posh, while the other built-in voices were not acceptably British. CT-01 is now testing regional British voices through ElevenLabs before any crowd mixing or public interface work.
+The script-generation and audio-proof foundation is working. OpenAI built-in voices failed the accent gate. ElevenLabs shared Voice Library produced one promising voice, Steve, but it is paid-only. ElevenLabs also restricts API Voice Design to paid plans even though Voice Design is available in the free web app.
+
+The current free-plan gate is therefore:
+
+1. design and save a voice manually in the ElevenLabs web app;
+2. discover that saved account voice through the API;
+3. run the repository's calm–pressure–climax football audition against it.
 
 ## Product rule
 
@@ -18,7 +24,7 @@ The commentator must never explain the joke or sound amused by it.
 
 - Node.js 20 or later;
 - an OpenAI API key for commentary-script generation and the existing OpenAI proof lane;
-- an ElevenLabs API key for the current regional British voice audition;
+- an ElevenLabs API key for account voice discovery and speech generation;
 - no API keys are needed for tests or dry runs.
 
 ## Check the foundation
@@ -26,38 +32,44 @@ The commentator must never explain the joke or sound amused by it.
 ```bash
 npm run check
 npm run proof:set:dry-run
-npm run voice:elevenlabs:dry-run
+npm run voice:account:dry-run
+npm run voice:account:audition:dry-run
 ```
 
-## Current human gate: ElevenLabs regional British audition
+## Current human gate: free-plan ElevenLabs web-app voice
 
-Set the ElevenLabs key only in the local shell:
+### Stage A — design and save the voice in the web app
 
-```powershell
-$env:ELEVENLABS_API_KEY = "your-local-key"
-```
+Use ElevenLabs Voice Design in the browser. Create an ordinary British male football commentator voice with:
 
-### Stage A — discover shared Voice Library candidates
+- a Northern English or neutral everyday English accent;
+- no posh or Received-Pronunciation character;
+- a grounded low-intensity delivery;
+- strong escalation and a credible final shout;
+- no American sports-announcer cadence;
+- no audiobook narration.
+
+Save the chosen voice to the ElevenLabs account.
+
+### Stage B — list saved account voices
 
 ```powershell
 git pull --ff-only
 npm run check
-npm run voice:elevenlabs
+npm run voice:account
 ```
 
-Open the generated `proof-output/elevenlabs-library-.../listen.html`. Choose one to three candidate numbers after rejecting American, posh/RP, audiobook-like and otherwise unsuitable voices.
+Open the generated `proof-output/elevenlabs-account-.../listen.html` and identify the candidate number of the newly saved voice.
 
-### Stage B — generate expressive football clips
-
-The command automatically finds the newest generated `voice-library.json`:
+### Stage C — generate the football audition
 
 ```powershell
-npm run voice:elevenlabs:audition -- 1,3
+npm run voice:account:audition -- 1
 ```
 
-Replace `1,3` with the actual candidate numbers selected in Stage A.
+Replace `1` with the actual candidate number.
 
-Score each selected candidate for:
+Judge:
 
 - British accent;
 - not-posh character;
@@ -66,6 +78,10 @@ Score each selected candidate for:
 - shouted climax.
 
 A voice must score at least 3 out of 5 on every measure.
+
+## Paid fallback
+
+**Steve — Calm, Expressive and Balanced** remains the only promising shared-library preview found so far, but ElevenLabs does not permit free users to add it to their account. Do not subscribe merely to test it.
 
 ## Existing OpenAI proof commands
 
