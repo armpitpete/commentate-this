@@ -4,13 +4,15 @@
 
 Automated tests can verify structure, timing instructions and files. They cannot reliably judge:
 
+- whether the accent sounds genuinely British;
 - football-commentary authenticity;
-- comic timing;
+- emotional range and tension;
 - whether the shout sounds committed rather than synthetic;
 - whether separate voice segments sound like one continuous performance;
-- whether the result is funny after repeated use.
+- comic timing;
+- whether the result remains funny after repeated use.
 
-## Generate the proof set
+## Gate A — commentator voice audition
 
 Set `OPENAI_API_KEY` in the local shell. Never save the key in the repository or paste it into chat.
 
@@ -18,19 +20,62 @@ PowerShell:
 
 ```powershell
 $env:OPENAI_API_KEY = "your-local-key"
-npm run proof:set
+npm run voice:audition
 ```
 
-This generates all ten fixed reference sentences in `excessive` mode at a target of 30 seconds, using the initial voices:
+The default audition compares:
 
-- commentator: `cedar`;
-- analyst: `marin`.
+- `fable`;
+- `ash`;
+- `onyx`;
+- `cedar`.
 
-These are starting defaults, not an approved identity.
+Every voice performs the same three-part sequence:
+
+1. controlled setup;
+2. urgent escalation;
+3. full shouted climax.
+
+Open the generated top-level `listen.html` and enter whole-number scores from 1 to 5 in `voice-audition-results.csv`.
+
+| Measure | Question |
+|---|---|
+| British accent | Does it sound like native British English rather than North American speech? |
+| Emotional range | Is there an unmistakable difference between calm, pressure and release? |
+| Football authenticity | Does it sound like live British football commentary rather than narration or advertising? |
+| Climax | Is the shout forceful, intelligible and emotionally committed? |
+
+A commentator candidate passes Gate A only when every measure scores at least 3. Mark one preferred voice. Do not generate the ten-case set until a voice passes.
+
+## Gate B — generate one complete proof
+
+Run one complete USB-cable proof with the preferred voice:
+
+```powershell
+npm run proof:generate -- --id usb-cable --mode excessive --duration 30 --commentator-voice <preferred-voice>
+```
+
+Open its `listen.html` and confirm:
+
+- British accent is maintained across every segment;
+- the setup is restrained;
+- urgency rises clearly;
+- the climax is substantially more emotional than the setup;
+- the analyst, when present, does not sound like the same performance level as the commentator.
+
+If this fails, return to Gate A or revise the speech-performance contract. Do not generate ten clips.
+
+## Gate C — generate the ten-case proof set
+
+```powershell
+npm run proof:set -- --commentator-voice <preferred-voice>
+```
+
+This generates all ten fixed reference sentences in `excessive` mode at a target of 30 seconds.
 
 Open the generated top-level `listen.html`. Each case has a **Play complete commentary** button that preserves the scripted pauses. No crowd audio is present.
 
-## Rating sheet
+## Ten-case rating sheet
 
 Enter scores in the generated `listening-results.csv`.
 
@@ -39,6 +84,8 @@ Score each case from 1 to 5:
 | Measure | Question |
 |---|---|
 | Football authenticity | Does it sound like live football commentary rather than an actor reading prose? |
+| British accent | Does the accent remain recognisably British throughout? |
+| Emotional range | Is there real contrast between setup, escalation and climax? |
 | Tension curve | Does the pace genuinely build? |
 | Pause | Is there enough silence before the climax? |
 | Shout | Is the climax forceful, intelligible and free from distortion? |
@@ -53,6 +100,7 @@ Use whole-number scores from 1 to 5. Enter `yes` or `no` in `replay`. Record one
 Proceed only when:
 
 - at least 8 of 10 clips score 3 or more on every measure;
+- no clip loses the British accent materially;
 - no clip has an unintelligible or distorted climax;
 - the same structural joke does not feel mechanically repeated across the set;
 - the listener would voluntarily replay at least 3 clips.
@@ -69,4 +117,4 @@ Revise prompts, segmentation or voice directions and repeat only the failed refe
 
 ### Fail
 
-Test another voice provider or a different segmentation strategy. Do not build the website.
+Test another built-in voice, another provider or a different segmentation strategy. Do not build the website.
