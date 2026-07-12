@@ -6,13 +6,7 @@ Turn any ordinary sentence into excessively dramatic football commentary — inc
 
 **CT-01 — Audio Proof Foundation / Provider Voice Gate**
 
-The script-generation and audio-proof foundation is working. OpenAI built-in voices failed the accent gate. ElevenLabs shared Voice Library produced one promising voice, Steve, but it is paid-only. ElevenLabs also restricts API Voice Design to paid plans even though Voice Design is available in the free web app.
-
-The current free-plan gate is therefore:
-
-1. design and save a voice manually in the ElevenLabs web app;
-2. discover that saved account voice through the API;
-3. run the repository's calm–pressure–climax football audition against it.
+The script-generation and audio-proof foundation is working. OpenAI built-in voices failed the accent gate. ElevenLabs free-plan voice creation and importing are restricted, so CT-01 now supports direct football audition of a human-selected Voice Library link or voice ID.
 
 ## Product rule
 
@@ -24,7 +18,7 @@ The commentator must never explain the joke or sound amused by it.
 
 - Node.js 20 or later;
 - an OpenAI API key for commentary-script generation and the existing OpenAI proof lane;
-- an ElevenLabs API key for account voice discovery and speech generation;
+- an ElevenLabs API key for direct voice audition and speech generation;
 - no API keys are needed for tests or dry runs.
 
 ## Check the foundation
@@ -32,48 +26,31 @@ The commentator must never explain the joke or sound amused by it.
 ```bash
 npm run check
 npm run proof:set:dry-run
-npm run voice:account:dry-run
 npm run voice:account:audition:dry-run
 ```
 
-## Current human gate: free-plan ElevenLabs web-app voice
+## Current human gate: direct ElevenLabs Voice Library candidate
 
-### Stage A — design and save the voice in the web app
-
-Use ElevenLabs Voice Design in the browser. Create an ordinary British male football commentator voice with:
-
-- a Northern English or neutral everyday English accent;
-- no posh or Received-Pronunciation character;
-- a grounded low-intensity delivery;
-- strong escalation and a credible final shout;
-- no American sports-announcer cadence;
-- no audiobook narration.
-
-Suggested design text:
+Current selected link:
 
 ```text
-A British male football commentator in his forties with an ordinary Northern English accent. Warm, grounded and conversational at low intensity, then fast, urgent and genuinely excited as play develops. Capable of a full committed goal shout without becoming shrill or distorted. Not posh, not Received Pronunciation, not aristocratic, not an audiobook narrator, and not an American sports announcer. Clear consonants, natural British football rhythm, broad emotional range, and believable live-broadcast energy.
+https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE
 ```
 
-Save the chosen voice to the ElevenLabs account.
-
-### Stage B — list saved account voices
+Run:
 
 ```powershell
 git pull --ff-only
-npm run check
-npm run voice:account
+npm run voice:account:audition -- "https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE"
 ```
 
-Open the generated `proof-output/elevenlabs-account-.../listen.html` and identify the candidate number of the newly saved voice.
-
-### Stage C — generate the football audition
+The command also accepts the bare voice ID:
 
 ```powershell
-npm run voice:account:audition -- 1
+npm run voice:account:audition -- nbk2esDn4RRk4cVDdoiE
 ```
 
-Replace `1` with the actual candidate number.
+If ElevenLabs refuses access, open the link and choose **Add to My Voices** or **Use voice**, then rerun. If ElevenLabs says the voice is unavailable to free users, record the candidate as paid-only.
 
 Judge:
 
@@ -85,9 +62,15 @@ Judge:
 
 A voice must score at least 3 out of 5 on every measure.
 
-## Paid fallback
+## Existing account-list workflow
 
-**Steve — Calm, Expressive and Balanced** remains the only promising shared-library preview found so far, but ElevenLabs does not permit free users to add it to their account. Do not subscribe merely to test it.
+The repository can still list voices already available in the account:
+
+```powershell
+npm run voice:account
+```
+
+The current account list contained only premade American voices, so those should not be used for CT-01.
 
 ## Existing OpenAI proof commands
 
@@ -115,4 +98,4 @@ Any public version must clearly state that the voice is AI-generated and is not 
 - [CT-01 scope and gate](docs/CT-01_AUDIO_PROOF.md)
 - [Human listening gate](docs/HUMAN_LISTENING_GATE.md)
 - [OpenAI built-in voice audition](docs/VOICE_AUDITION.md)
-- [ElevenLabs regional British audition](docs/ELEVENLABS_AUDITION.md)
+- [ElevenLabs voice gate](docs/ELEVENLABS_AUDITION.md)
