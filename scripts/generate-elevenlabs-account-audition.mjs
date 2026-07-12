@@ -23,6 +23,21 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function extractVoiceId(raw) {
+  const value = String(raw ?? "").trim();
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    const voiceId = url.searchParams.get("voiceId") ?? url.searchParams.get("voice_id");
+    if (voiceId) return voiceId;
+  } catch {
+    // A bare voice ID is expected to fail URL parsing.
+  }
+
+  return /^[A-Za-z0-9_-]{10,64}$/u.test(value) ? value : null;
+}
+
 async function findLatestManifest(root = "proof-output") {
   const matches = [];
 
@@ -75,6 +90,7 @@ function buildIndexHtml(voice, files) {
   <main>
     <h1>${escapeHtml(voice.name)} — football audition</h1>
     <p><strong>Disclosure:</strong> ${escapeHtml(DISCLOSURE)}</p>
+    <p><strong>Voice ID:</strong> <code>${escapeHtml(voice.voice_id)}</code></p>
     <p><strong>Category:</strong> ${escapeHtml(voice.category || "not supplied")} · <strong>Accent:</strong> ${escapeHtml(voice.accent || "not supplied")}</p>
     <ol>${clips}</ol>
   </main>
@@ -89,8 +105,8 @@ if (args["dry-run"]) {
   console.log(JSON.stringify({
     provider: "elevenlabs",
     stage: "account_voice_expressive_audition",
-    preferredInvocation: "npm run voice:account:audition -- 1",
-    manifestResolution: "latest proof-output/**/account-voices.json",
+    preferredInvocation: "npm run voice:account:audition -- <candidate-number|voice-id|voice-library-url>",
+    manifestResolution: "latest proof-output/**/account-voices.json for numeric candidates; direct IDs and URLs need no manifest",
     createsVoice: false,
     callsPerCandidate: auditionSegments.length,
     model
@@ -98,33 +114,62 @@ if (args["dry-run"]) {
   process.exit(0);
 }
 
-const candidateNumber = Number(args._?.[0]);
-if (!Number.isInteger(candidateNumber) || candidateNumber < 1) {
-  throw new Error("Supply one account-voice candidate number, for example: npm run voice:account:audition -- 1");
+const selection = String(args._?.[0] ?? "").trim();
+if (!selection) {
+  throw new Error("Supply an account-voice candidate number, ElevenLabs voice ID, or Voice Library URL.");
 }
 
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) throw new Error("ELEVENLABS_API_KEY is required. Set it only in the local shell.");
 
-const manifestPath = await findLatestManifest();
-if (!manifestPath) {
-  throw new Error("No account-voices.json was found. Run `npm run voice:account` first.");
-}
+let manifestPath = null;
+let voice;
 
-const discovery = JSON.parse(await readFile(manifestPath, "utf8"));
-const voice = discovery.candidates?.find((item) => item.candidate === candidateNumber);
-if (!voice) throw new Error(`Candidate ${candidateNumber} does not exist in ${manifestPath}`);
+if (/^\d+$/u.test(selection)) {
+  const candidateNumber = Number(selection);
+  manifestPath = await findLatestManifest();
+  if (!manifestPath) {
+    throw new Error("No account-voices.json was found. Run `npm run voice:account` first, or supply a Voice Library URL/voice ID directly.");
+  }
+
+  const discovery = JSON.parse(await readFile(manifestPath, "utf8"));
+  voice = discovery.candidates?.find((item) => item.candidate === candidateNumber);
+  if (!voice) throw new Error(`Candidate ${candidateNumber} does not exist in ${manifestPath}`);
+} else {
+  const voiceId = extractVoiceId(selection);
+  if (!voiceId) {
+    throw new Error("The supplied value is not a valid candidate number, ElevenLabs voice ID, or Voice Library URL.");
+  }
+  voice = {
+    candidate: null,
+    voice_id: voiceId,
+    name: args.name ?? `ElevenLabs voice ${voiceId.slice(0, 8)}`,
+    category: "direct voice ID",
+    accent: "not supplied",
+    source_url: selection.startsWith("http") ? selection : null
+  };
+}
 
 const outputRoot = path.resolve(args["output-dir"] ?? path.join("proof-output", `elevenlabs-account-expressive-${timestamp()}`));
 await mkdir(outputRoot, { recursive: true });
 
-console.log(`Using account voice: ${voice.name} (${voice.voice_id})`);
+console.log(`Using ElevenLabs voice: ${voice.name} (${voice.voice_id})`);
 const files = [];
-for (const [index, segment] of auditionSegments.entries()) {
-  const filename = `${String(index + 1).padStart(2, "0")}-${segment.role}.mp3`;
-  const audio = await createElevenLabsSpeechSegment({ apiKey, voiceId: voice.voice_id, segment, model });
-  await writeFile(path.join(outputRoot, filename), audio);
-  files.push(filename);
+try {
+  for (const [index, segment] of auditionSegments.entries()) {
+    const filename = `${String(index + 1).padStart(2, "0")}-${segment.role}.mp3`;
+    const audio = await createElevenLabsSpeechSegment({ apiKey, voiceId: voice.voice_id, segment, model });
+    await writeFile(path.join(outputRoot, filename), audio);
+    files.push(filename);
+  }
+} catch (error) {
+  const guidance = [
+    error?.message ?? String(error),
+    "The linked voice is not currently usable through this API key.",
+    "Open the Voice Library link in ElevenLabs and choose Add to My Voices or Use voice, then rerun the same command.",
+    "If ElevenLabs says the voice is unavailable to free users, the candidate is paid-only."
+  ].join("\n");
+  throw new Error(guidance, { cause: error });
 }
 
 await writeFile(path.join(outputRoot, "listen.html"), buildIndexHtml(voice, files));
