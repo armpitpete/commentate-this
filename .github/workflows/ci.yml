@@ -28,6 +28,11 @@ jobs:
       - name: Verify single-proof dry run
         run: npm run proof:dry-run > /tmp/commentate-this-dry-run.txt
 
+      - name: Verify voice-audition plan
+        run: |
+          npm run voice:audition:dry-run > /tmp/commentate-this-voice-audition.json
+          node -e 'const proof = require("/tmp/commentate-this-voice-audition.json"); if (proof.voices.length < 3 || proof.calls !== proof.voices.length * 3) process.exit(1)'
+
       - name: Verify ten-case proof-set plan
         run: |
           node scripts/generate-proof-set.mjs --dry-run > /tmp/commentate-this-proof-set.json
