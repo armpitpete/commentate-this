@@ -113,4 +113,5 @@ Any public version must clearly state that the voice is AI-generated and is not 
 
 - [Product contract](docs/PRODUCT_CONTRACT.md)
 - [CT-01 scope and gate](docs/CT-01_AUDIO_PROOF.md)
+- [Voice audition](docs/VOICE_AUDITION.md)
 - [Human listening gate](docs/HUMAN_LISTENING_GATE.md)
