@@ -2,50 +2,68 @@
 
 ## Goal
 
-Prove that an ordinary sentence can become sincere, escalating British football commentary with a convincing final shout.
+Prove that one ordinary sentence can become a short, funny and recognisably football-like audio performance with controlled tension and a decisive shout.
 
-## Machine-complete foundation
+## Included
 
-- ten fixed source sentences;
-- three intensity levels;
-- strict commentary-script schema;
-- semantic validation and climax repair;
-- OpenAI script generation;
-- provider adapters and local listening players;
-- automated tests and CI.
+- ten fixed reference sentences;
+- five dramatic modes;
+- strict structured commentary schema;
+- semantic validation of tension shape;
+- duration estimation;
+- provider-neutral prompt rules;
+- OpenAI Responses API request builder;
+- OpenAI Speech API segment generation;
+- ElevenLabs shared-voice discovery and account-voice support;
+- direct ElevenLabs Voice Library URL or voice-ID audition;
+- separate audio segment packages with manifests;
+- automated tests and dry-run commands.
 
-## Voice findings
+## Excluded
 
-- OpenAI built-in voices failed the British, non-posh performance requirement.
-- ElevenLabs shared Voice Library produced one promising preview, Steve, but it is paid-only.
-- ElevenLabs Voice Design is available in the free web app, while API voice creation is paid-only.
+- crowd-effect assets;
+- FFmpeg mixing;
+- browser product interface;
+- user accounts;
+- sharing and downloads;
+- live microphone input;
+- voice cloning;
+- named-commentator imitation;
+- production deployment.
 
-## Current gate
+## Machine gate
 
-Create and save a purpose-built commentator voice in the ElevenLabs web app. Then:
+CT-01 foundation passes when:
 
-```powershell
-npm run voice:account
-npm run voice:account:audition -- 1
+- `npm run check` passes;
+- the schema and runtime validator agree;
+- all ten reference cases can produce a valid request payload;
+- provider audition plans pass dry-run validation;
+- live runs can save audio and manifests;
+- no credentials are stored in the repository.
+
+## Current voice gate
+
+The active candidate is a human-selected ElevenLabs Voice Library link:
+
+```text
+https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE
 ```
 
-Replace `1` with the selected account-voice candidate number.
+Run:
 
-The voice must pass:
+```powershell
+npm run voice:account:audition -- "https://elevenlabs.io/app/voice-library?voiceId=nbk2esDn4RRk4cVDdoiE"
+```
 
-- British accent;
-- non-posh delivery;
-- emotional range;
-- football authenticity;
-- intelligible committed climax.
+A voice must be British, non-posh, emotionally responsive and recognisably suitable for live football commentary.
 
-## Later gates
+## Human gate
 
-1. one full USB-cable commentary proof;
-2. ten-case proof set;
-3. crowd timing and audio assembly;
-4. public interface.
+The technical foundation cannot determine whether the performance is actually funny or sounds like a football broadcast. Human listening is mandatory before crowd mixing or interface work.
+
+See `HUMAN_LISTENING_GATE.md` and `ELEVENLABS_AUDITION.md`.
 
 ## Stop rule
 
-Do not begin crowd, rendering or interface work until the provider voice passes the complete human proof.
+Do not build the public site until at least one provider/voice configuration passes the complete listening gate. A poor voice cannot be repaired by adding more interface.
