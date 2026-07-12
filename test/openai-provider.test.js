@@ -4,12 +4,26 @@ import { readFile } from "node:fs/promises";
 import {
   buildOpenAICommentaryRequest,
   createOpenAICommentaryScript,
-  createOpenAISpeechSegment
+  createOpenAISpeechSegment,
+  normalizeGeneratedCommentaryScript
 } from "../src/providers/openai.js";
 
 const fixture = JSON.parse(
   await readFile(new URL("../fixtures/valid-script.json", import.meta.url), "utf8")
 );
+
+function responseFor(script) {
+  return new Response(
+    JSON.stringify({
+      output: [
+        {
+          content: [{ type: "output_text", text: JSON.stringify(script) }]
+        }
+      ]
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } }
+  );
+}
 
 test("commentary request uses strict JSON schema and stateless storage", () => {
   const request = buildOpenAICommentaryRequest({
@@ -25,20 +39,33 @@ test("commentary request uses strict JSON schema and stateless storage", () => {
   assert.equal(request.text.format.schema.type, "object");
 });
 
+test("generated climax timing and performance metadata are repaired deterministically", () => {
+  const generated = structuredClone(fixture);
+  generated.sourceText = "Model paraphrase that must not replace the source";
+  generated.segments[3].delivery.intensity = 4;
+  generated.segments[3].delivery.pace = "fast";
+  generated.segments[3].delivery.volume = "loud";
+  generated.segments[3].delivery.pauseBeforeMs = 0;
+
+  const normalized = normalizeGeneratedCommentaryScript(generated, {
+    text: fixture.sourceText,
+    mode: fixture.mode,
+    targetDurationSeconds: fixture.targetDurationSeconds
+  });
+
+  assert.equal(normalized.sourceText, fixture.sourceText);
+  assert.equal(normalized.segments[3].delivery.intensity, 5);
+  assert.equal(normalized.segments[3].delivery.pace, "shout");
+  assert.equal(normalized.segments[3].delivery.volume, "full");
+  assert.equal(normalized.segments[3].delivery.pauseBeforeMs, 500);
+  assert.equal(generated.segments[3].delivery.pauseBeforeMs, 0);
+});
+
 test("provider extracts and validates structured response output", async () => {
   const fetchImpl = async (_url, options) => {
     const request = JSON.parse(options.body);
     assert.equal(request.store, false);
-    return new Response(
-      JSON.stringify({
-        output: [
-          {
-            content: [{ type: "output_text", text: JSON.stringify(fixture) }]
-          }
-        ]
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return responseFor(fixture);
   };
 
   const result = await createOpenAICommentaryScript({
@@ -46,6 +73,45 @@ test("provider extracts and validates structured response output", async () => {
     text: fixture.sourceText,
     fetchImpl
   });
+  assert.equal(result.title, fixture.title);
+});
+
+test("provider repairs a missing pre-climax pause without another API call", async () => {
+  const generated = structuredClone(fixture);
+  generated.segments[3].delivery.pauseBeforeMs = 0;
+  let calls = 0;
+
+  const result = await createOpenAICommentaryScript({
+    apiKey: "test-key",
+    text: fixture.sourceText,
+    fetchImpl: async () => {
+      calls += 1;
+      return responseFor(generated);
+    }
+  });
+
+  assert.equal(calls, 1);
+  assert.equal(result.segments[3].delivery.pauseBeforeMs, 500);
+});
+
+test("provider retries once with semantic validation feedback", async () => {
+  const invalid = structuredClone(fixture);
+  invalid.segments[0].delivery.intensity = 1;
+  invalid.segments[1].delivery.intensity = 1;
+  invalid.segments[2].delivery.intensity = 1;
+  const requests = [];
+
+  const result = await createOpenAICommentaryScript({
+    apiKey: "test-key",
+    text: fixture.sourceText,
+    fetchImpl: async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      return responseFor(requests.length === 1 ? invalid : fixture);
+    }
+  });
+
+  assert.equal(requests.length, 2);
+  assert.match(requests[1].input, /must increase tension before the climax/u);
   assert.equal(result.title, fixture.title);
 });
 
