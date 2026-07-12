@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "title": "The USB Reversal",
+  "sourceText": "I tried to plug in a USB cable, turned it twice, and it only fitted in the original position.",
+  "mode": "excessive",
+  "targetDurationSeconds": 30,
+  "segments": [
+    {
+      "id": "s01",
+      "speaker": "commentator",
+      "role": "set_up",
+      "text": "Merrin approaches the port with the cable in his right hand. There appears to be no pressure at all.",
+      "delivery": {"intensity":1,"pace":"calm","volume":"normal","emotion":"focused","pauseBeforeMs":0,"pauseAfterMs":250},
+      "crowd": {"bed":"low","reaction":"none","ducking":0.7}
+    },
+    {
+      "id": "s02",
+      "speaker": "commentator",
+      "role": "obstacle",
+      "text": "First attempt, and the port shuts the route immediately. He turns the cable over and resets.",
+      "delivery": {"intensity":2,"pace":"building","volume":"normal","emotion":"concerned","pauseBeforeMs":0,"pauseAfterMs":200},
+      "crowd": {"bed":"low","reaction":"murmur","ducking":0.65}
+    },
+    {
+      "id": "s03",
+      "speaker": "commentator",
+      "role": "escalation",
+      "text": "It still will not go. He is running out of ideas now, and he turns it back to the exact position he started from.",
+      "delivery": {"intensity":4,"pace":"breathless","volume":"loud","emotion":"urgent","pauseBeforeMs":0,"pauseAfterMs":150},
+      "crowd": {"bed":"medium","reaction":"gasp","ducking":0.5}
+    },
+    {
+      "id": "s04",
+      "speaker": "commentator",
+      "role": "climax",
+      "text": "IT IS IN! THE ORIGINAL POSITION HAS WON IT AT THE THIRD ATTEMPT!",
+      "delivery": {"intensity":5,"pace":"shout","volume":"full","emotion":"triumphant","pauseBeforeMs":700,"pauseAfterMs":1200},
+      "crowd": {"bed":"high","reaction":"roar","ducking":0.25}
+    },
+    {
+      "id": "s05",
+      "speaker": "analyst",
+      "role": "analysis",
+      "text": "You have to question both rotations. He had the correct alignment from the beginning, but he did not trust the system.",
+      "delivery": {"intensity":1,"pace":"measured","volume":"normal","emotion":"disappointed","pauseBeforeMs":450,"pauseAfterMs":200},
+      "crowd": {"bed":"low","reaction":"applause","ducking":0.75}
+    }
+  ]
+}
