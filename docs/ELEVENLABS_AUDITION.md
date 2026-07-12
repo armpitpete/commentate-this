@@ -2,60 +2,83 @@
 
 ## Closed findings
 
-The OpenAI built-in voices failed:
+### OpenAI built-in voices
 
-- `fable` was British but too posh;
-- the other built-in voices were not acceptably British.
+- `cedar` was North American and emotionally flat;
+- `fable` was British but too posh/Received Pronunciation;
+- no OpenAI built-in voice passed.
 
-The ElevenLabs shared Voice Library preview produced one promising candidate:
+### Shared Voice Library
 
-- **Steve — Calm, Expressive and Balanced**.
+- candidates 1–11 were Indian-accented or too quiet;
+- candidate 12, **Steve — Calm, Expressive and Balanced**, was the only promising preview;
+- Steve is unavailable to free users and remains a paid-only fallback.
 
-Steve could not be imported on the free plan. ElevenLabs returned: `This voice is not available for free users. Please upgrade your plan.`
+### API Voice Design
 
-The repository now displays shared-voice free-plan availability before selection. Steve remains a paid-only fallback, not an approved product voice.
+ElevenLabs includes Voice Design in the free web app, but both the Voice Design API and API voice creation are restricted to paid plans. The repository must not describe those API calls as a free-plan workflow.
 
-## Current gate — free Voice Design
+## Current free-plan workflow
 
-ElevenLabs includes Voice Design on the free plan. CT-01 uses it to generate purpose-built candidates with this contract:
+### Stage A — create the voice in the ElevenLabs web app
 
-- British male;
-- ordinary Northern English accent;
+Use Voice Design in the browser and save a voice with this contract:
+
+- British male football commentator;
+- ordinary Northern English or neutral everyday English accent;
 - not posh or Received Pronunciation;
-- calm and grounded at low intensity;
-- urgent and fast during escalation;
-- capable of a committed, intelligible football climax;
-- not an audiobook narrator;
-- not an American sports announcer.
+- grounded at low intensity;
+- urgent during escalation;
+- capable of a full, intelligible final shout;
+- not American sports-announcer cadence;
+- not audiobook narration.
 
-### Stage A — generate designed previews
+This is the only manual creation step.
+
+### Stage B — discover saved account voices
 
 ```powershell
 git pull --ff-only
 npm run check
-npm run voice:design
+npm run voice:account
 ```
 
-Open the generated `proof-output/elevenlabs-designed-.../listen.html` and choose one candidate number.
+The command calls the account voice endpoint and creates:
 
-### Stage B — create and football-test one design
+```text
+proof-output/
+└── elevenlabs-account-...
+    ├── listen.html
+    ├── account-voices.json
+    └── account-voices.csv
+```
+
+Open `listen.html` and identify the candidate number of the newly saved voice.
+
+### Stage C — football-test the selected account voice
 
 ```powershell
-npm run voice:design:audition -- 1
+npm run voice:account:audition -- 1
 ```
 
-Replace `1` with the selected candidate. The command automatically finds the newest `voice-design.json`, creates only that voice, and generates:
+Replace `1` with the selected candidate number. The command does not create or import a voice. It uses the saved voice ID directly and generates:
 
 1. restrained setup;
 2. urgent escalation;
 3. shouted climax.
 
-Score British accent, not-posh character, emotional range, football authenticity and climax. Every measure must score at least 3.
+## Score
 
-## Paid fallback
+Score from 1 to 5 for:
 
-The current ElevenLabs Starter plan is a paid option if Steve later justifies a controlled comparison. Do not subscribe merely to discover whether he can perform. Complete the free Voice Design gate first.
+- British accent;
+- not-posh character;
+- emotional range;
+- football authenticity;
+- climax.
+
+A candidate passes only if every measure scores at least 3.
 
 ## Stop rule
 
-Do not generate the ten-case proof set, add crowd mixing or begin the public interface until one voice passes the full human gate.
+Do not subscribe merely to test Steve. Do not begin crowd mixing, single-file rendering or the public interface until an account voice passes the complete human gate.
