@@ -16,6 +16,8 @@
     "proof:generate": "node scripts/generate-audio-proof.mjs",
     "proof:set": "node scripts/generate-proof-set.mjs",
     "proof:set:dry-run": "node scripts/generate-proof-set.mjs --dry-run",
+    "voice:audition": "node scripts/generate-voice-audition.mjs",
+    "voice:audition:dry-run": "node scripts/generate-voice-audition.mjs --dry-run",
     "check": "npm run schema:check && npm test"
   }
 }
