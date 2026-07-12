@@ -4,9 +4,9 @@ Turn any ordinary sentence into excessively dramatic football commentary — inc
 
 ## Current status
 
-**CT-01 — Audio Proof Foundation**
+**CT-01 — Audio Proof Foundation / Provider Voice Gate**
 
-The repository proves the script and voice-generation pipeline. It deliberately stops before crowd mixing and public interface work because the next decision requires human listening.
+The script-generation and audio-proof foundation is working. The OpenAI built-in voice audition has failed: `fable` was British but too posh, while the other built-in voices were not acceptably British. CT-01 is now testing regional British voices through ElevenLabs before any crowd mixing or public interface work.
 
 ## Product rule
 
@@ -14,96 +14,59 @@ The repository proves the script and voice-generation pipeline. It deliberately 
 
 The commentator must never explain the joke or sound amused by it.
 
-The performance contract also requires:
-
-- native British English;
-- a neutral UK football-broadcast accent;
-- clear emotional contrast between setup, pressure and climax;
-- no North American sports-announcer cadence;
-- one committed but intelligible final shout.
-
 ## Requirements
 
 - Node.js 20 or later;
-- an OpenAI API key only for live audio generation;
-- no API key for tests or dry runs.
+- an OpenAI API key for commentary-script generation and the existing OpenAI proof lane;
+- an ElevenLabs API key for the current regional British voice audition;
+- no API keys are needed for tests or dry runs.
 
 ## Check the foundation
 
 ```bash
 npm run check
 npm run proof:set:dry-run
-npm run voice:audition:dry-run
+npm run voice:elevenlabs:dry-run
 ```
 
-## Audition the commentator voices first
+## Current human gate: ElevenLabs regional British audition
 
-Set `OPENAI_API_KEY` in the local shell. Never save it in the repository or paste it into chat.
-
-PowerShell:
+Create an ElevenLabs API key, set it only in the local shell, then run:
 
 ```powershell
-$env:OPENAI_API_KEY = "your-local-key"
-npm run voice:audition
+$env:ELEVENLABS_API_KEY = "your-local-key"
+git pull --ff-only
+npm run check
+npm run voice:elevenlabs
 ```
 
-The default audition compares `fable`, `ash`, `onyx` and `cedar` using the same controlled setup, urgent escalation and shouted climax.
+Open the generated `proof-output/elevenlabs-audition-.../listen.html` and complete `voice-audition-results.csv`.
 
-To compare a different set:
+Reject voices that are:
 
-```powershell
-npm run voice:audition -- --voices fable,marin,verse
-```
+- American or ambiguously non-British;
+- posh, aristocratic or Received Pronunciation;
+- emotionally flat;
+- audiobook-like rather than live football commentary;
+- unable to produce an intelligible shouted climax.
 
-Open the generated top-level `listen.html`, then complete `voice-audition-results.csv`. Choose the commentator voice by ear; a built-in voice name does not guarantee a British accent.
+A voice must score at least 3 out of 5 for British accent, not-posh character, emotional range, football authenticity and climax.
 
-## Generate one live proof
+## Existing OpenAI proof commands
 
-After selecting a voice:
-
-```powershell
-npm run proof:generate -- --id usb-cable --mode excessive --duration 30 --commentator-voice fable
-```
-
-Bash:
+Generate one OpenAI proof:
 
 ```bash
-export OPENAI_API_KEY="your-local-key"
-npm run proof:generate -- --id usb-cable --mode excessive --duration 30 --commentator-voice fable
+npm run proof:generate -- --id usb-cable --mode excessive --duration 30
 ```
 
-Each proof package contains:
-
-- `script.json`;
-- one WAV file per speech segment;
-- `manifest.json` with voice, accent contract, timing and future crowd cues;
-- `listen.html`, which plays the segments in order with the scripted pauses.
-
-## Generate the complete human-listening set
-
-Only after one voice passes the audition:
+Generate the ten-case OpenAI proof set only after a voice configuration is approved:
 
 ```bash
-npm run proof:set -- --commentator-voice fable
+npm run proof:set
 ```
-
-This generates all ten fixed cases under one dated folder in `proof-output/`, including:
-
-- a top-level `listen.html` index;
-- one timed listening player per case;
-- `proof-set.json`;
-- `listening-results.csv` ready for the required 1–5 scores, including British accent and emotional range.
 
 Credentials and generated audio are ignored by Git.
-
-## Default proof models
-
-- commentary script: `gpt-5.6` through the Responses API;
-- speech: `gpt-4o-mini-tts`;
-- commentator audition default: `fable`;
-- analyst audition default: `cedar`.
-
-These are test candidates, not approved product identities.
 
 ## Audio disclosure
 
@@ -113,5 +76,6 @@ Any public version must clearly state that the voice is AI-generated and is not 
 
 - [Product contract](docs/PRODUCT_CONTRACT.md)
 - [CT-01 scope and gate](docs/CT-01_AUDIO_PROOF.md)
-- [Voice audition](docs/VOICE_AUDITION.md)
 - [Human listening gate](docs/HUMAN_LISTENING_GATE.md)
+- [OpenAI built-in voice audition](docs/VOICE_AUDITION.md)
+- [ElevenLabs regional British audition](docs/ELEVENLABS_AUDITION.md)
