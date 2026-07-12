@@ -68,6 +68,11 @@ jobs:
           node scripts/generate-azure-audition.mjs --dry-run > /tmp/commentate-this-azure-audition.json
           node -e 'const proof = require("/tmp/commentate-this-azure-audition.json"); if (proof.provider !== "azure" || proof.stage !== "british_voice_audition" || proof.voices.length !== 4 || proof.calls !== 12) process.exit(1)'
 
+      - name: Verify Google Gemini British audition plan
+        run: |
+          node scripts/generate-google-audition.mjs --dry-run > /tmp/commentate-this-google-audition.json
+          node -e 'const proof = require("/tmp/commentate-this-google-audition.json"); if (proof.provider !== "google-gemini" || proof.stage !== "british_voice_audition" || proof.model !== "gemini-3.1-flash-tts-preview" || proof.freeTier !== true || proof.voices.length !== 6 || proof.calls !== 18) process.exit(1)'
+
       - name: Verify ten-case proof-set plan
         run: |
           node scripts/generate-proof-set.mjs --dry-run > /tmp/commentate-this-proof-set.json
