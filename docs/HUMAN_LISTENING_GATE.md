@@ -10,20 +10,31 @@ Automated tests can verify structure, timing instructions and files. They cannot
 - whether separate voice segments sound like one continuous performance;
 - whether the result is funny after repeated use.
 
-## Proof set
+## Generate the proof set
 
-Generate the ten fixed reference sentences in `excessive` mode at 30 seconds.
+Set `OPENAI_API_KEY` in the local shell. Never save the key in the repository or paste it into chat.
 
-Initial voice comparison:
+PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY = "your-local-key"
+npm run proof:set
+```
+
+This generates all ten fixed reference sentences in `excessive` mode at a target of 30 seconds, using the initial voices:
 
 - commentator: `cedar`;
 - analyst: `marin`.
 
 These are starting defaults, not an approved identity.
 
+Open the generated top-level `listen.html`. Each case has a **Play complete commentary** button that preserves the scripted pauses. No crowd audio is present.
+
 ## Rating sheet
 
-Score each clip from 1 to 5:
+Enter scores in the generated `listening-results.csv`.
+
+Score each case from 1 to 5:
 
 | Measure | Question |
 |---|---|
@@ -35,7 +46,7 @@ Score each clip from 1 to 5:
 | Comedy | Is the disproportionate seriousness actually funny? |
 | Restraint | Does it avoid constant clichés, shouting and explanation? |
 
-Record one specific failure note for any score below 3.
+Use whole-number scores from 1 to 5. Enter `yes` or `no` in `replay`. Record one specific failure note for any score below 3.
 
 ## Pass threshold
 
