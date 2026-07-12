@@ -4,60 +4,73 @@
 
 Automated tests can verify structure, timing instructions and files. They cannot reliably judge:
 
-- whether the voice sounds genuinely British;
-- whether it avoids an unsuitable posh/Received-Pronunciation character;
+- whether the voice is recognisably British;
+- whether it sounds ordinary/regional rather than posh or Received Pronunciation;
 - football-commentary authenticity;
-- emotional range and comic timing;
+- emotional range;
+- comic timing;
 - whether the shout sounds committed rather than synthetic;
-- whether separate voice segments sound like one continuous performance;
-- whether the result is funny after repeated use.
+- whether separate voice segments sound like one continuous performance.
 
-## Closed OpenAI built-in voice finding
+## Provider findings
 
-The OpenAI built-in voice gate failed:
+### OpenAI built-in voices
 
-- `cedar` sounded North American and emotionally flat;
-- `fable` was clearly British but too posh;
-- the other built-in candidates were not acceptably British.
+Failed. `fable` was British but too posh; the remaining voices were not acceptably British.
 
-## Current Gate A — ElevenLabs Voice Library discovery
+### ElevenLabs shared voices
 
-Set `ELEVENLABS_API_KEY` in the local shell. Never save the key in the repository or paste it into chat.
+Steve was the only promising preview, but ElevenLabs blocks free accounts from importing it.
+
+### ElevenLabs API Voice Design
+
+Blocked on the free account. The API returns that creating a voice through the API requires a paid plan.
+
+## Current Gate A — create and save a voice in the ElevenLabs web app
+
+Use Voice Design in the browser. The voice must be British, non-posh, grounded at low intensity and capable of genuine escalation and a committed final shout.
+
+After saving the voice to the account, run:
 
 ```powershell
-git pull --ff-only
-npm run check
-npm run voice:elevenlabs
+npm run voice:account
 ```
 
-Open the generated `proof-output/elevenlabs-library-.../listen.html`. Reject American, posh/RP, audiobook-like and unsuitable voices. Select one to three candidate numbers.
+Open the generated `listen.html` and identify the new voice's candidate number.
 
 ## Current Gate B — expressive football audition
 
-The command automatically uses the newest generated `voice-library.json`:
-
 ```powershell
-npm run voice:elevenlabs:audition -- 1,3
+npm run voice:account:audition -- 1
 ```
 
-Replace `1,3` with the selected candidate numbers.
+Replace `1` with the selected account-voice candidate number.
 
-Score each candidate from 1 to 5 for:
+Score each measure from 1 to 5:
 
 | Measure | Question |
 |---|---|
-| British accent | Does it sound naturally British? |
-| Not posh | Does it avoid RP, aristocratic or overly polished delivery? |
-| Emotional range | Is there an obvious calm-to-pressure-to-climax change? |
+| British accent | Is the voice clearly British? |
+| Not posh | Does it avoid posh, aristocratic and RP character? |
+| Emotional range | Is the calm-to-pressure-to-climax difference obvious? |
 | Football authenticity | Does it sound like live football commentary rather than narration? |
-| Climax | Is the final shout forceful, intelligible and free from distortion? |
+| Climax | Is the shout committed, intelligible and free from distortion? |
 
 A candidate passes only when every measure scores at least 3.
 
-## Later complete-proof gate
+## Gate C — one complete proof
 
-After a provider voice passes the short audition, integrate it into one complete USB-cable proof. Then judge continuity, accent stability, tension curve, pause, shout, comedy and restraint before generating the full ten-case proof set.
+After selecting a voice, integrate its provider and voice ID into one complete USB-cable proof. Confirm:
+
+- the accent remains acceptable across a full script;
+- separate segments feel like the same broadcast;
+- the performance remains sincere;
+- the climax is earned rather than merely loud.
+
+## Gate D — ten-case proof
+
+Only after Gate C passes, generate all ten reference cases.
 
 ## Stop rule
 
-Do not start crowd mixing, single-file rendering or the public interface until a provider/voice configuration passes the complete human gate.
+Do not begin crowd mixing, single-file rendering or public interface work until the ten-case human gate passes.
