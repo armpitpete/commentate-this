@@ -20,7 +20,9 @@ test("commentary request uses strict JSON schema and stateless storage", () => {
   assert.equal(request.store, false);
   assert.equal(request.text.format.type, "json_schema");
   assert.equal(request.text.format.strict, true);
-  assert.equal(request.text.format.schema.title, "Commentate This commentary script");
+  assert.equal(request.text.format.schema.$schema, undefined);
+  assert.equal(request.text.format.schema.title, undefined);
+  assert.equal(request.text.format.schema.type, "object");
 });
 
 test("provider extracts and validates structured response output", async () => {
