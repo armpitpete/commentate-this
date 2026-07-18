@@ -1,22 +1,64 @@
+---
+standard: Recursive Project Improvement Standard v1.0
+entry_authority: true
+---
+
 # Project Entry Rules
 
-This repository follows **Recursive Project Improvement Standard v1.0**.
+These rules apply to every human or AI session working in this repository.
 
-## Mandatory entry sequence
+## Before acting
 
-Before making any change: read this file, read `STATUS.md` and every authority file it names, resolve the exact current repository head, state the current authority and bounded lane, then complete only that lane. Update `STATUS.md` before session closure or promotion.
-
-Do not begin a new lane automatically.
+1. Read `STATUS.md`.
+2. Read every authority file named by `STATUS.md`.
+3. Verify the exact repository head.
+4. State:
+   - current authority;
+   - current lane;
+   - allowed scope;
+   - forbidden changes;
+   - required validation;
+   - stop point.
+5. Work through only the complete authorised lane.
+6. Do not begin a new lane automatically.
 
 ## One-lane rule
 
-Use one project, one authority, one bounded goal, one implementation contract, one validation set, one review point and one promotion or stop point.
+```text
+1 project
+1 authority
+1 bounded goal
+1 implementation contract
+1 validation set
+1 review point
+1 promotion or stop point
+```
 
-## Stop conditions
+## Mandatory stop conditions
 
-Stop only for authority conflict, unclear scope, unexplained validation failure, a necessary forbidden change, irreversible action requiring approval, or genuine provider/audio evidence requiring judgement.
+Stop when:
 
-## New-chat bootstrap
+- authority cannot be established;
+- current-state records conflict;
+- scope is unclear or insufficient;
+- validation fails without explanation;
+- a forbidden change becomes necessary;
+- reviewed and current versions differ;
+- irreversible promotion lacks approval;
+- genuine provider or audio evidence requires human judgement.
+
+Do not stop merely because a step, commit, validator, pull request or draft output completed.
+
+## Session closure
+
+Before ending a work session, update `STATUS.md` so it states:
+
+- `Done`;
+- `To do`;
+- `Next bounded gate`;
+- `Stop point`.
+
+## Fixed new-chat bootstrap
 
 ```text
 Continue work on `armpitpete/commentate-this`.
@@ -34,6 +76,6 @@ one validation set, one review point, and one promotion or stop point.
 Do not rely on previous-chat memory when repository authority can be checked.
 ```
 
-## Completion authority
+## Parent standard
 
-`STATUS.md` is the sole repository-level completion authority. Product, provider, script and audio evidence records are supporting evidence only.
+`Recursive Project Improvement Standard v1.0`
